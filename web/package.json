@@ -12,7 +12,6 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@fontsource-variable/geist": "^5.2.9",
     "@microsoft/fetch-event-source": "2.0.1",
     "@tailwindcss/vite": "4.3.0",
     "@tanstack/react-query": "5.101.0",

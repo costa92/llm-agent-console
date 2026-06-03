@@ -19,4 +19,16 @@ export default defineConfig([
       globals: globals.browser,
     },
   },
+  {
+    // shadcn/ui vendored components co-export a component + its `*Variants`
+    // (class-variance-authority) constant by design. Allow that pattern here
+    // rather than restructuring owned-but-generated component files.
+    files: ['src/components/ui/**/*.{ts,tsx}'],
+    rules: {
+      'react-refresh/only-export-components': [
+        'warn',
+        { allowConstantExport: true },
+      ],
+    },
+  },
 ])
