@@ -4,14 +4,14 @@ milestone: v1.0
 milestone_name: milestone
 status: executing
 stopped_at: Phase 2 (Memory Console) — 02-01 Wave 0 data layer complete (typed /api/memory client + zod schemas + test mocks; 52/52 tests, build/tsc/lint green)
-last_updated: "2026-06-03T08:40:36.703Z"
+last_updated: "2026-06-03T08:54:04.059Z"
 last_activity: 2026-06-03
 progress:
   total_phases: 6
   completed_phases: 1
   total_plans: 10
-  completed_plans: 6
-  percent: 60
+  completed_plans: 7
+  percent: 17
 ---
 
 # Project State
@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-06-02)
 ## Current Position
 
 Phase: 2 of 6 (Memory Console)
-Plan: 1 of 5 in current phase (Wave 0 data layer complete)
-Status: In progress — 02-01 (typed /api/memory client + zod schemas + test mocks) done
+Plan: 2 of 5 in current phase (Wave 0 data layer complete)
+Status: Ready to execute
 Last activity: 2026-06-03
 
-Progress: [██████░░░░] 60%
+Progress: [███████░░░] 70%
 
 ## Performance Metrics
 
@@ -57,6 +57,7 @@ Progress: [██████░░░░] 60%
 | Phase 01-foundation P04 | 6min | 2 tasks | 19 files |
 | Phase 1 P5 | 3min | 2 tasks | 6 files |
 | Phase 02 P01 | 5min | 2 tasks | 6 files |
+| Phase 02 P02 | 18min | 2 tasks | 12 files |
 
 ## Accumulated Context
 
@@ -79,6 +80,8 @@ Recent decisions affecting current work:
 - [Phase ?]: 02-01: Memory client fetchers take Phase-1 apiFetch as arg 1 — X-Console-* identity injection inherited; client never sets X-Tenant-Id/X-User-Id (T-02-01); bodies send scope:{}.
 - [Phase ?]: 02-01: Every memory mutation threads expected_version (OCC); write/patch carry a fresh crypto.randomUUID() idempotency_key; body-bearing DELETE sets Content-Type; parseGatewayError surfaces 409 memory_conflict with details.current_version.
 - [Phase ?]: 02-01: recall query key = ['recall',{query,top_k,consistency_level}] only — sort/page/state-filter stay client-side (D-03/D-13), never in the key; recall sends only documented fields (DisallowUnknownFields).
+- [Phase ?]: 02-02: Memory recall uses a CLIENT-SIDE @tanstack/react-table (sort/page/filter over fetched top-k); top_k is the only server re-query lever (D-03 forced by the gateway flat hits[] contract)
+- [Phase ?]: 02-02: D-12 gate is render-first in MemoryPage — the recall-firing subtree is never mounted while tenant/user unset, so no doomed request can fire (MEM-08/IC-7)
 
 ### Pending Todos
 
@@ -100,6 +103,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-06-03T08:38:35.904Z
+Last session: 2026-06-03T08:53:39.832Z
 Stopped at: Phase 2 (Memory Console) — 02-01 Wave 0 data layer complete (typed /api/memory client + zod schemas + test mocks; 52/52 tests, build/tsc/lint green)
-Resume file: .planning/phases/02-memory-console/02-01-SUMMARY.md
+Resume file: None

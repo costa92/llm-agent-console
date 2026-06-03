@@ -36,7 +36,7 @@ hypotheses until shipped and validated.
 - [ ] **MEM-05**: Operator **pins / unpins** a memory item (`POST .../pin|unpin`).
 - [ ] **MEM-06**: Operator **disables / enables** a memory item (`POST .../disable|enable`).
 - [ ] **MEM-07**: Operator **deletes** a memory item (`DELETE /memory/items/{id}`); delete and disable require a **confirmation step** and use **pessimistic** UI (reflect state only after the backend confirms).
-- [ ] **MEM-08**: All memory actions are **gated behind operator context** (SHELL-03) — the console clearly indicates when tenant/user is unset and memory is therefore unavailable.
+- [x] **MEM-08**: All memory actions are **gated behind operator context** (SHELL-03) — the console clearly indicates when tenant/user is unset and memory is therefore unavailable.
 
 ### FLOW — flow console
 
