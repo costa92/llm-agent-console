@@ -72,7 +72,29 @@ Plans:
   4. Operator deletes a memory item through an explicit confirmation step, with delete/disable gated behind confirmation.
   5. When tenant/user context is unset, the console clearly indicates memory is unavailable and gates all memory actions behind operator context.
 
-**Plans**: TBD
+**Plans**: 5 plans (vertical slices: Wave 0 foundation → Slice A recall → Slice B drawer → Slice C lifecycle)
+
+Plans:
+**Wave 1** *(foundation — typed client + zod schemas + test mocks; blocked on Phase 1 execution)*
+
+- [ ] 02-01-PLAN.md — Typed /api/memory client + zod schemas (verified gateway contract) + test mock harness
+
+**Wave 2** *(Slice A — blocked on 02-01)*
+
+- [ ] 02-02-PLAN.md — Recall→render: Memory route + D-12 context gate + SearchControls + client-side ResultsTable with pinned/disabled badges
+
+**Wave 3** *(Slice B — blocked on 02-02)*
+
+- [ ] 02-03-PLAN.md — Item detail drawer: ?item-synced sheet, GET item, rendered fields + raw JSON viewer
+
+**Wave 4** *(Slice C-1 — blocked on 02-03)*
+
+- [ ] 02-04-PLAN.md — Write/patch JSON editor (one editor, two modes) + write/patch mutations (refetch-after, D-09) + first-class 409 OCC recovery
+
+**Wave 5** *(Slice C-2 — blocked on 02-04)*
+
+- [ ] 02-05-PLAN.md — Lifecycle: pin/unpin/disable/enable/delete with two confirm weights, pessimistic UI, reflect-from-response + delete splice, 409 reuse
+
 **UI hint**: yes
 
 ### Phase 3: Flow Console
@@ -128,7 +150,6 @@ Plans:
 **Goal**: The console runs alongside the umbrella stack as a **proxy-only Go BFF** plus a **fronting static host (nginx)** that serves the built SPA and reverse-proxies `/api/*` to the BFF on one origin — with that fronting proxy configured NOT to buffer the stream routes. (Per Phase-1 CONTEXT D-04/D-05/D-06 — not a `go:embed` single binary.)
 **Mode:** mvp
 **Depends on**: Phase 5
-**Requirements**: (operationalizes BFF-01..04; no new v1 requirement)
 **Success Criteria** (what must be TRUE):
 
   1. The console deploys as long-lived compose service(s) — a proxy-only Go BFF + a fronting static host (nginx) serving the SPA at `/` and proxying `/api/*` to the BFF on a single origin (no embedded SPA, no CORS) — reachable in the umbrella stack, not serverless/edge.
@@ -145,8 +166,8 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation | 0/TBD | Not started | - |
-| 2. Memory Console | 0/TBD | Not started | - |
+| 1. Foundation | 0/5 | Not started | - |
+| 2. Memory Console | 0/5 | Not started | - |
 | 3. Flow Console | 0/TBD | Not started | - |
 | 4. Chat Console | 0/TBD | Not started | - |
 | 5. Health & Hardening | 0/TBD | Not started | - |
