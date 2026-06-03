@@ -77,7 +77,7 @@ Plans:
 Plans:
 **Wave 1** *(foundation — typed client + zod schemas + test mocks; blocked on Phase 1 execution)*
 
-- [ ] 02-01-PLAN.md — Typed /api/memory client + zod schemas (verified gateway contract) + test mock harness
+- [x] 02-01-PLAN.md — Typed /api/memory client + zod schemas (verified gateway contract) + test mock harness
 
 **Wave 2** *(Slice A — blocked on 02-01)*
 
@@ -167,7 +167,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation | 5/5 | Complete   | 2026-06-03 |
-| 2. Memory Console | 0/5 | Not started | - |
+| 2. Memory Console | 1/5 | In Progress|  |
 | 3. Flow Console | 0/TBD | Not started | - |
 | 4. Chat Console | 0/TBD | Not started | - |
 | 5. Health & Hardening | 0/TBD | Not started | - |

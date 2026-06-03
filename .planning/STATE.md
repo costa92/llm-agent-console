@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Phase 1 (Foundation) verified PASSED — 5/5 criteria, 10/10 reqs; BFF-03 PART 2 (through-nginx) carried forward (Docker unreachable)
-last_updated: "2026-06-03T07:27:33.337Z"
+stopped_at: Phase 2 (Memory Console) — 02-01 Wave 0 data layer complete (typed /api/memory client + zod schemas + test mocks; 52/52 tests, build/tsc/lint green)
+last_updated: "2026-06-03T08:40:36.703Z"
 last_activity: 2026-06-03
 progress:
   total_phases: 6
   completed_phases: 1
   total_plans: 10
-  completed_plans: 5
-  percent: 17
+  completed_plans: 6
+  percent: 60
 ---
 
 # Project State
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-06-02)
 
 **Core value:** Turn the ecosystem's headless service APIs into one usable, observable operator surface — see and act on what the backends are doing from a single web UI.
-**Current focus:** Phase 1 — Foundation
+**Current focus:** Phase 2 — Memory Console
 
 ## Current Position
 
-Phase: 1 of 6 (Foundation)
-Plan: 5 of 5 in current phase
-Status: Ready to execute
+Phase: 2 of 6 (Memory Console)
+Plan: 1 of 5 in current phase (Wave 0 data layer complete)
+Status: In progress — 02-01 (typed /api/memory client + zod schemas + test mocks) done
 Last activity: 2026-06-03
 
-Progress: [█████░░░░░] 50%
+Progress: [██████░░░░] 60%
 
 ## Performance Metrics
 
@@ -56,6 +56,7 @@ Progress: [█████░░░░░] 50%
 | Phase 01 P03 | 18min | 2 tasks | 11 files |
 | Phase 01-foundation P04 | 6min | 2 tasks | 19 files |
 | Phase 1 P5 | 3min | 2 tasks | 6 files |
+| Phase 02 P01 | 5min | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -75,6 +76,9 @@ Recent decisions affecting current work:
 - [Phase ?]: 01-04: Shared router.tsx assembles the TanStack routeTree (Shell + memory/flow/chat + / -> /memory) for both main.tsx and tests.
 - [Phase ?]: FiveStateWrapper renders Retry/'Set context' buttons but their handlers are optional consumer props — primitive stays reusable across Phases 2-5
 - [Phase ?]: RawJsonViewer ships a plain mono <pre> in Phase 1; syntax colorization deferred (no rainbow) per RESEARCH.md
+- [Phase ?]: 02-01: Memory client fetchers take Phase-1 apiFetch as arg 1 — X-Console-* identity injection inherited; client never sets X-Tenant-Id/X-User-Id (T-02-01); bodies send scope:{}.
+- [Phase ?]: 02-01: Every memory mutation threads expected_version (OCC); write/patch carry a fresh crypto.randomUUID() idempotency_key; body-bearing DELETE sets Content-Type; parseGatewayError surfaces 409 memory_conflict with details.current_version.
+- [Phase ?]: 02-01: recall query key = ['recall',{query,top_k,consistency_level}] only — sort/page/state-filter stay client-side (D-03/D-13), never in the key; recall sends only documented fields (DisallowUnknownFields).
 
 ### Pending Todos
 
@@ -96,6 +100,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-06-03T07:27:33.329Z
-Stopped at: Phase 1 (Foundation) verified PASSED — 5/5 criteria, 10/10 reqs; BFF-03 PART 2 (through-nginx) carried forward (Docker unreachable)
-Resume file: .planning/phases/01-foundation/01-VERIFICATION.md
+Last session: 2026-06-03T08:38:35.904Z
+Stopped at: Phase 2 (Memory Console) — 02-01 Wave 0 data layer complete (typed /api/memory client + zod schemas + test mocks; 52/52 tests, build/tsc/lint green)
+Resume file: .planning/phases/02-memory-console/02-01-SUMMARY.md

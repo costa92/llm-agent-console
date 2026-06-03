@@ -29,10 +29,10 @@ hypotheses until shipped and validated.
 
 ### MEM — memory console
 
-- [ ] **MEM-01**: Operator runs a **recall/search** (`POST /memory/recall/unified`) and sees ranked results with score and metadata; each result links to its item detail.
+- [x] **MEM-01**: Operator runs a **recall/search** (`POST /memory/recall/unified`) and sees ranked results with score and metadata; each result links to its item detail.
 - [ ] **MEM-02**: Operator opens a **memory item detail** (`GET /memory/items/{id}`) with rendered fields plus raw JSON.
-- [ ] **MEM-03**: Operator **writes** a new memory record (`POST /memory/write`) via a validated JSON editor.
-- [ ] **MEM-04**: Operator **patches** an existing memory item (`PATCH /memory/items/{id}`).
+- [x] **MEM-03**: Operator **writes** a new memory record (`POST /memory/write`) via a validated JSON editor.
+- [x] **MEM-04**: Operator **patches** an existing memory item (`PATCH /memory/items/{id}`).
 - [ ] **MEM-05**: Operator **pins / unpins** a memory item (`POST .../pin|unpin`).
 - [ ] **MEM-06**: Operator **disables / enables** a memory item (`POST .../disable|enable`).
 - [ ] **MEM-07**: Operator **deletes** a memory item (`DELETE /memory/items/{id}`); delete and disable require a **confirmation step** and use **pessimistic** UI (reflect state only after the backend confirms).
