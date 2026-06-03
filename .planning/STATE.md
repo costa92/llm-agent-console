@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 02-04-PLAN.md (write/patch editor + mutations + 409/partial — Slice C-1)
-last_updated: "2026-06-03T09:16:27.000Z"
+stopped_at: Completed 02-03-PLAN.md (item detail drawer — Slice B)
+last_updated: "2026-06-03T09:30:59.149Z"
 last_activity: 2026-06-03
 progress:
   total_phases: 6
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 10
-  completed_plans: 9
-  percent: 18
+  completed_plans: 10
+  percent: 33
 ---
 
 # Project State
@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-06-02)
 ## Current Position
 
 Phase: 2 of 6 (Memory Console)
-Plan: 4 of 5 in current phase (Slices A+B+C-1 complete; lifecycle 02-05 remaining)
-Status: Ready to execute
+Plan: 5 of 5 in current phase (Slices A+B+C-1+C-2 complete — Phase 2 DONE)
+Status: Phase 2 complete; ready for Phase 3
 Last activity: 2026-06-03
 
-Progress: [████████░░] 80%
+Progress: [███░░░░░░░] 33% (2 of 6 phases)
 
 ## Performance Metrics
 
@@ -60,6 +60,7 @@ Progress: [████████░░] 80%
 | Phase 02 P02 | 18min | 2 tasks | 12 files |
 | Phase 02 P03 | 10min | 1 tasks | 4 files |
 | Phase 02 P04 | 12min | 2 tasks | 8 files |
+| Phase 02 P05 | 14min | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -87,6 +88,8 @@ Recent decisions affecting current work:
 - [Phase 02]: 02-03: ItemDrawer open state IS the ?item URL param (D-04/D-05) — reload reopens, browser-back closes, link shareable; close clears ?item without re-running recall (D-09)
 - [Phase 02]: 02-03: drawer has NO empty state — a 404 not_found maps to the FiveStateWrapper error state inside the drawer (IC-2: an id implies existence)
 - [Phase 02]: 02-03: shadcn sheet (not vaul drawer) added per RESEARCH A1; width overridden to fixed 480px; action-region (Patch/pin/disable/delete) shipped as disabled placeholders for plans 02-04/02-05
+- [Phase ?]: 02-05: lifecycle flag toggles REFLECT-FROM-RESPONSE (setQueryData item + setQueriesData recall hit, no GET refetch); delete SPLICES the recall row + drops item cache; neither re-runs recall (D-09 hybrid)
+- [Phase ?]: 02-05: two confirm weights in one LifecycleActions — delete=RED shadcn dialog (pattern=dialog+destructive Button), disable=neutral, pin/unpin/enable=no confirm (D-10); pessimistic remove-after-200 (D-11); 409 reuses handle409Conflict
 
 ### Pending Todos
 
@@ -108,6 +111,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-06-03T09:02:06.497Z
+Last session: 2026-06-03T09:30:34.908Z
 Stopped at: Completed 02-03-PLAN.md (item detail drawer — Slice B)
 Resume file: None

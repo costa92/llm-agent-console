@@ -14,7 +14,7 @@ Turn three headless ecosystem services (memory-gateway, flowd, customer-support 
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Foundation** - Single-origin BFF (auth boundary + verified SSE pass-through) + SPA shell + cross-cutting primitives (completed 2026-06-03)
-- [ ] **Phase 2: Memory Console** - REST-only memory recall/detail/lifecycle, proving auth injection + query cache before any SSE
+- [x] **Phase 2: Memory Console** - REST-only memory recall/detail/lifecycle, proving auth injection + query cache before any SSE (completed 2026-06-03)
 - [ ] **Phase 3: Flow Console** - Flow CRUD + first SSE: live run timeline, run history, events/replay (keystone streaming phase)
 - [ ] **Phase 4: Chat Console** - Streaming agent-step chat with session continuity, reusing the SSE infra
 - [ ] **Phase 5: Health & Hardening** - Always-visible per-service health + five-state/reconnect error hardening
@@ -93,7 +93,7 @@ Plans:
 
 **Wave 5** *(Slice C-2 — blocked on 02-04)*
 
-- [ ] 02-05-PLAN.md — Lifecycle: pin/unpin/disable/enable/delete with two confirm weights, pessimistic UI, reflect-from-response + delete splice, 409 reuse
+- [x] 02-05-PLAN.md — Lifecycle: pin/unpin/disable/enable/delete with two confirm weights, pessimistic UI, reflect-from-response + delete splice, 409 reuse
 
 **UI hint**: yes
 
@@ -167,7 +167,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation | 5/5 | Complete   | 2026-06-03 |
-| 2. Memory Console | 4/5 | In Progress|  |
+| 2. Memory Console | 5/5 | Complete   | 2026-06-03 |
 | 3. Flow Console | 0/TBD | Not started | - |
 | 4. Chat Console | 0/TBD | Not started | - |
 | 5. Health & Hardening | 0/TBD | Not started | - |
