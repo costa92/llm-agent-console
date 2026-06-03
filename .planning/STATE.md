@@ -4,14 +4,14 @@ milestone: v1.0
 milestone_name: milestone
 status: executing
 stopped_at: Completed 01-01-PLAN.md (BFF-03 PART 1 verified; PART 2 through-nginx deferred — Docker registry unreachable in sandbox)
-last_updated: "2026-06-03T07:13:36.398Z"
+last_updated: "2026-06-03T07:21:50.747Z"
 last_activity: 2026-06-03
 progress:
   total_phases: 6
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 10
-  completed_plans: 4
-  percent: 0
+  completed_plans: 5
+  percent: 17
 ---
 
 # Project State
@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-06-02)
 ## Current Position
 
 Phase: 1 of 6 (Foundation)
-Plan: 4 of 5 in current phase
+Plan: 5 of 5 in current phase
 Status: Ready to execute
 Last activity: 2026-06-03
 
-Progress: [████░░░░░░] 40%
+Progress: [█████░░░░░] 50%
 
 ## Performance Metrics
 
@@ -55,6 +55,7 @@ Progress: [████░░░░░░] 40%
 | Phase 01 P02 | 18min | 2 tasks | 34 files |
 | Phase 01 P03 | 18min | 2 tasks | 11 files |
 | Phase 01-foundation P04 | 6min | 2 tasks | 19 files |
+| Phase 1 P5 | 3min | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -72,6 +73,8 @@ Recent decisions affecting current work:
 - [Phase ?]: 01-04: Shell — makeApiFetcher is the single X-Console-* injection point; OperatorContextBar only calls setContext.
 - [Phase ?]: 01-04: Operator context in localStorage holds only {tenant,user,project,session}; auth token never stored (D-01).
 - [Phase ?]: 01-04: Shared router.tsx assembles the TanStack routeTree (Shell + memory/flow/chat + / -> /memory) for both main.tsx and tests.
+- [Phase ?]: FiveStateWrapper renders Retry/'Set context' buttons but their handlers are optional consumer props — primitive stays reusable across Phases 2-5
+- [Phase ?]: RawJsonViewer ships a plain mono <pre> in Phase 1; syntax colorization deferred (no rainbow) per RESEARCH.md
 
 ### Pending Todos
 
@@ -93,6 +96,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-06-03T07:13:11.905Z
+Last session: 2026-06-03T07:19:25.695Z
 Stopped at: Completed 01-01-PLAN.md (BFF-03 PART 1 verified; PART 2 through-nginx deferred — Docker registry unreachable in sandbox)
 Resume file: None

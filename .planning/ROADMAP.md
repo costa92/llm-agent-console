@@ -13,7 +13,7 @@ Turn three headless ecosystem services (memory-gateway, flowd, customer-support 
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Foundation** - Single-origin BFF (auth boundary + verified SSE pass-through) + SPA shell + cross-cutting primitives
+- [x] **Phase 1: Foundation** - Single-origin BFF (auth boundary + verified SSE pass-through) + SPA shell + cross-cutting primitives (completed 2026-06-03)
 - [ ] **Phase 2: Memory Console** - REST-only memory recall/detail/lifecycle, proving auth injection + query cache before any SSE
 - [ ] **Phase 3: Flow Console** - Flow CRUD + first SSE: live run timeline, run history, events/replay (keystone streaming phase)
 - [ ] **Phase 4: Chat Console** - Streaming agent-step chat with session continuity, reusing the SSE infra
@@ -54,7 +54,7 @@ Plans:
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
-- [ ] 01-05-PLAN.md — Cross-cutting primitives: FiveStateWrapper + RawJsonViewer + CopyableId
+- [x] 01-05-PLAN.md — Cross-cutting primitives: FiveStateWrapper + RawJsonViewer + CopyableId
 
 **UI hint**: yes
 
@@ -166,7 +166,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation | 4/5 | In Progress|  |
+| 1. Foundation | 5/5 | Complete   | 2026-06-03 |
 | 2. Memory Console | 0/5 | Not started | - |
 | 3. Flow Console | 0/TBD | Not started | - |
 | 4. Chat Console | 0/TBD | Not started | - |
