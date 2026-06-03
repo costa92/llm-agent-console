@@ -21,10 +21,10 @@ hypotheses until shipped and validated.
 
 - [x] **SHELL-01**: Operator navigates between the Memory, Flow, and Chat consoles from a persistent shell/nav.
 - [ ] **SHELL-02**: Operator sees **always-visible per-service health** (up / down / degraded) for memory-gateway, flowd, and chat, polled on an interval, with a last-checked timestamp.
-- [ ] **SHELL-03**: Operator sets and sees the **active operator context** (tenant id, user id, optional project/session id), persisted across reloads and displayed in the shell at all times.
-- [ ] **SHELL-04**: The active **environment/endpoint** the BFF targets is displayed prominently in the shell.
+- [x] **SHELL-03**: Operator sets and sees the **active operator context** (tenant id, user id, optional project/session id), persisted across reloads and displayed in the shell at all times.
+- [x] **SHELL-04**: The active **environment/endpoint** the BFF targets is displayed prominently in the shell.
 - [ ] **SHELL-05**: Every list/detail/stream view renders explicit **loading, empty, and error states** (no ambiguous blank screens).
-- [ ] **SHELL-06**: Operator gets **toast feedback** (success/failure, with the upstream message on failure) for every write/lifecycle/run action.
+- [x] **SHELL-06**: Operator gets **toast feedback** (success/failure, with the upstream message on failure) for every write/lifecycle/run action.
 - [ ] **SHELL-07**: Operator can view the **raw JSON** of any item/event/response in a collapsible, copy-to-clipboard viewer, and copy resource ids (memory/run/session) with one click.
 
 ### MEM — memory console

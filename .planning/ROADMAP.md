@@ -50,7 +50,7 @@ Plans:
 **Wave 3** *(blocked on Wave 2 completion)*
 
 - [x] 01-03-PLAN.md — Auth boundary: three upstream directors + operator token middleware + /api/config/env
-- [ ] 01-04-PLAN.md — Shell layout: NavBar + TopBar + OperatorContextBar + HealthDot + placeholder routes
+- [x] 01-04-PLAN.md — Shell layout: NavBar + TopBar + OperatorContextBar + HealthDot + placeholder routes
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
@@ -166,7 +166,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation | 3/5 | In Progress|  |
+| 1. Foundation | 4/5 | In Progress|  |
 | 2. Memory Console | 0/5 | Not started | - |
 | 3. Flow Console | 0/TBD | Not started | - |
 | 4. Chat Console | 0/TBD | Not started | - |

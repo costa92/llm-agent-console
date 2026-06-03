@@ -4,13 +4,13 @@ milestone: v1.0
 milestone_name: milestone
 status: executing
 stopped_at: Completed 01-01-PLAN.md (BFF-03 PART 1 verified; PART 2 through-nginx deferred — Docker registry unreachable in sandbox)
-last_updated: "2026-06-03T07:03:20.723Z"
+last_updated: "2026-06-03T07:13:36.398Z"
 last_activity: 2026-06-03
 progress:
   total_phases: 6
   completed_phases: 0
   total_plans: 10
-  completed_plans: 3
+  completed_plans: 4
   percent: 0
 ---
 
@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-06-02)
 ## Current Position
 
 Phase: 1 of 6 (Foundation)
-Plan: 3 of 5 in current phase
+Plan: 4 of 5 in current phase
 Status: Ready to execute
 Last activity: 2026-06-03
 
-Progress: [███░░░░░░░] 30%
+Progress: [████░░░░░░] 40%
 
 ## Performance Metrics
 
@@ -54,6 +54,7 @@ Progress: [███░░░░░░░] 30%
 *Updated after each plan completion*
 | Phase 01 P02 | 18min | 2 tasks | 34 files |
 | Phase 01 P03 | 18min | 2 tasks | 11 files |
+| Phase 01-foundation P04 | 6min | 2 tasks | 19 files |
 
 ## Accumulated Context
 
@@ -68,6 +69,9 @@ Recent decisions affecting current work:
 - [Phase ?]: 01-02: Pinned TypeScript to 5.9.3 (scaffold installed 6.0.2); Tailwind v4 plugin-only (no tailwind.config.js); UI-SPEC dark hex tokens authoritative; sonner fixed dark theme (dropped next-themes)
 - [Phase ?]: 01-03: BFF auth boundary — strip all X-*-Id/Authorization then re-materialize gateway scope from X-Console-* (anti confused-deputy); flowd bearer from config, ModifyResponse scrubs Authorization/X-Echo-Auth echo so token never reaches browser (D-01); /api/config/env exposes env+base URLs only.
 - [Phase ?]: 01-03: D-01 no-leak is a header-scope guarantee; BFF stays verbatim body pass-through (BFF-04), does NOT content-scan/redact upstream bodies.
+- [Phase ?]: 01-04: Shell — makeApiFetcher is the single X-Console-* injection point; OperatorContextBar only calls setContext.
+- [Phase ?]: 01-04: Operator context in localStorage holds only {tenant,user,project,session}; auth token never stored (D-01).
+- [Phase ?]: 01-04: Shared router.tsx assembles the TanStack routeTree (Shell + memory/flow/chat + / -> /memory) for both main.tsx and tests.
 
 ### Pending Todos
 
@@ -89,6 +93,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-06-03T07:02:59.518Z
+Last session: 2026-06-03T07:13:11.905Z
 Stopped at: Completed 01-01-PLAN.md (BFF-03 PART 1 verified; PART 2 through-nginx deferred — Docker registry unreachable in sandbox)
 Resume file: None
