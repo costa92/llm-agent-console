@@ -1,32 +1,66 @@
 // Package router builds the BFF HTTP handler.
 //
-// Phase 1 (BFF-03 keystone) mounts only the synthetic SSE proof endpoint and a
-// health check. The per-upstream proxy directors (memory/flow/chat) are added
-// in later plans; this skeleton exists to prove unbuffered SSE transport
-// end-to-end through the fronting nginx before any streaming UI is built.
+// It mounts the synthetic SSE proof endpoint (BFF-03), a health check, the three
+// allowlisted upstream proxy directors (memory/flow/chat), and the read-only
+// /api/config/env endpoint (SHELL-04). The whole mux is wrapped by the app-layer
+// operator-token middleware (CONTEXT D-01): non-allowlisted paths return 404, and
+// only mapped upstream routes are proxied (no open proxy / SSRF surface).
 package router
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"time"
 
 	"github.com/costa92/llm-agent-console/internal/config"
+	"github.com/costa92/llm-agent-console/internal/proxy"
 )
 
 // syntheticTicks is how many tick frames the SSE proof emits before closing.
 const syntheticTicks = 30
 
-// New returns the BFF HTTP handler. cfg is accepted for forward-compatibility
-// with later plans that wire the proxy directors from config; Phase 1 does not
-// yet read upstream URLs here.
+// New returns the BFF HTTP handler. It wires the three upstream proxy directors
+// from cfg, the synthetic SSE proof, the health check, and /api/config/env, then
+// wraps the whole mux with the operator-token middleware so auth gates every
+// route (empty operator token = disabled in dev).
+//
+// Upstream routes use http.StripPrefix so the directors receive an already-
+// stripped path (e.g. /api/memory/items/1 → /items/1 at the gateway). Only these
+// mapped prefixes are reachable; any other /api/* path falls through to 404.
 func New(cfg *config.Config) http.Handler {
-	_ = cfg // upstream directors are wired in a later plan
-
 	mux := http.NewServeMux()
+
+	// Allowlisted upstream proxies (one director per upstream auth model).
+	mux.Handle("/api/memory/", http.StripPrefix("/api/memory", proxy.NewMemoryProxy(cfg)))
+	mux.Handle("/api/flow/", http.StripPrefix("/api/flow", proxy.NewFlowProxy(cfg)))
+	mux.Handle("/api/chat/", http.StripPrefix("/api/chat", proxy.NewChatProxy(cfg)))
+
+	// BFF-03 synthetic SSE proof + health check (no auth on healthz).
 	mux.HandleFunc("GET /api/stream/test", syntheticSSEHandler)
 	mux.HandleFunc("GET /healthz", healthHandler)
-	return mux
+
+	// SHELL-04: active environment/endpoint indicator (read-only, no secrets).
+	mux.HandleFunc("GET /api/config/env", configEnvHandler(cfg))
+
+	// Gate every route behind the app-layer operator token (D-01).
+	return proxy.MiddlewareOperatorAuth(cfg.OperatorToken, mux)
+}
+
+// configEnvHandler serves SHELL-04: the active environment name and the upstream
+// base URLs the BFF targets. It deliberately EXCLUDES every secret
+// (flowd_token, operator_token) — only non-secret targeting info is exposed.
+func configEnvHandler(cfg *config.Config) http.HandlerFunc {
+	return func(w http.ResponseWriter, _ *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		_ = json.NewEncoder(w).Encode(map[string]string{
+			"env":         "dev",
+			"memory_base": cfg.MemoryBase,
+			"flow_base":   cfg.FlowBase,
+			"chat_base":   cfg.ChatBase,
+		})
+	}
 }
 
 // healthHandler returns 200 with a small JSON body for compose health checks.
