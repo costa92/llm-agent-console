@@ -34,9 +34,9 @@ import { LifecycleActions } from './LifecycleActions'
  * `not_found` lands as the ERROR state INSIDE the drawer — there is NO empty
  * state, because an id implies the item should exist.
  *
- * Lifecycle actions + the "Patch" editor button are PLACEHOLDER stubs here; this
- * plan only establishes the host surface. Plans 02-04 (patch editor) and 02-05
- * (pin/unpin/disable/enable/delete + confirms + OCC) wire them in.
+ * The action region hosts the "Patch" editor (02-04: EditorDrawer patch mode) and
+ * LifecycleActions (02-05: pin/unpin/disable/enable/delete + two confirm weights + OCC),
+ * both wired in below via `variant="drawer"`.
  */
 export function ItemDrawer() {
   const { item, setItem } = useMemorySearchParams()
