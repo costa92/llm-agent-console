@@ -45,7 +45,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 01-02-PLAN.md — SPA scaffold (Vite + React 19 + TypeScript 5.9.3 + Tailwind v4 + shadcn + Vitest)
+- [x] 01-02-PLAN.md — SPA scaffold (Vite + React 19 + TypeScript 5.9.3 + Tailwind v4 + shadcn + Vitest)
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
@@ -166,7 +166,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation | 1/5 | In Progress|  |
+| 1. Foundation | 2/5 | In Progress|  |
 | 2. Memory Console | 0/5 | Not started | - |
 | 3. Flow Console | 0/TBD | Not started | - |
 | 4. Chat Console | 0/TBD | Not started | - |

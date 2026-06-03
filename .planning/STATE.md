@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Phase 2 UI-SPEC approved
-last_updated: "2026-06-03T06:32:10.033Z"
-last_activity: 2026-06-03 -- Phase 2 planning complete
+stopped_at: Completed 01-01-PLAN.md (BFF-03 PART 1 verified; PART 2 through-nginx deferred — Docker registry unreachable in sandbox)
+last_updated: "2026-06-03T06:53:21.046Z"
+last_activity: 2026-06-03
 progress:
   total_phases: 6
   completed_phases: 0
   total_plans: 10
-  completed_plans: 1
-  percent: 10
+  completed_plans: 2
+  percent: 0
 ---
 
 # Project State
@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-06-02)
 ## Current Position
 
 Phase: 1 of 6 (Foundation)
-Plan: 1 of 5 in current phase
-Status: Executing
-Last activity: 2026-06-03 -- Completed 01-01-PLAN.md (BFF-03 keystone: BFF skeleton + synthetic SSE proof + nginx config)
+Plan: 2 of 5 in current phase
+Status: Ready to execute
+Last activity: 2026-06-03
 
-Progress: [█░░░░░░░░░] 10%
+Progress: [██░░░░░░░░] 20%
 
 ## Performance Metrics
 
@@ -52,6 +52,7 @@ Progress: [█░░░░░░░░░] 10%
 - Trend: —
 
 *Updated after each plan completion*
+| Phase 01 P02 | 18min | 2 tasks | 34 files |
 
 ## Accumulated Context
 
@@ -63,6 +64,7 @@ Recent decisions affecting current work:
 - [Roadmap]: Stack fixed by research — React 19 + Vite SPA (TanStack Router/Query + shadcn/ui + Tailwind v4, TS pinned 5.9.x) served as static assets behind a thin Go `httputil.ReverseProxy` BFF in this repo.
 - [Roadmap]: SSE via `@microsoft/fetch-event-source` (endpoints are SSE-over-POST; native EventSource unusable).
 - [Roadmap]: Vertical-slice build order — Memory (REST-only) deliberately before Flow (first SSE) to de-risk auth/cache before the keystone streaming risk.
+- [Phase ?]: 01-02: Pinned TypeScript to 5.9.3 (scaffold installed 6.0.2); Tailwind v4 plugin-only (no tailwind.config.js); UI-SPEC dark hex tokens authoritative; sonner fixed dark theme (dropped next-themes)
 
 ### Pending Todos
 
@@ -84,6 +86,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-06-03T06:30:52Z
+Last session: 2026-06-03T06:53:02.547Z
 Stopped at: Completed 01-01-PLAN.md (BFF-03 PART 1 verified; PART 2 through-nginx deferred — Docker registry unreachable in sandbox)
-Resume file: .planning/phases/01-foundation/01-02-PLAN.md
+Resume file: None
