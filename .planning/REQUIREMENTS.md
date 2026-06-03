@@ -12,10 +12,10 @@ hypotheses until shipped and validated.
 
 ### BFF — single-origin proxy + auth + streaming
 
-- [ ] **BFF-01**: Operator reaches all three backends through **one origin**; the BFF maps allowlisted routes to the memory-gateway, flowd, and chat upstreams (no open pass-through, no SSRF).
-- [ ] **BFF-02**: The BFF **injects each service's auth server-side**. Operator context arrives from the browser as `X-Console-Tenant`/`X-Console-User`/`X-Console-Project`/`X-Console-Session` headers and is **re-materialized server-side** into the gateway `X-Tenant-Id`/`X-User-Id` (and optional `X-Project-Id`/`X-Session-Id`); the flowd `Authorization: Bearer` comes from server config. The BFF **strips ALL inbound `X-*-Id` scope headers and the inbound `Authorization`** before re-materializing, and **never exposes the flowd token to the browser**. (The optional operator token the browser sends as `Authorization: Bearer` is authenticated and consumed at the app layer, not forwarded.)
+- [x] **BFF-01**: Operator reaches all three backends through **one origin**; the BFF maps allowlisted routes to the memory-gateway, flowd, and chat upstreams (no open pass-through, no SSRF).
+- [x] **BFF-02**: The BFF **injects each service's auth server-side**. Operator context arrives from the browser as `X-Console-Tenant`/`X-Console-User`/`X-Console-Project`/`X-Console-Session` headers and is **re-materialized server-side** into the gateway `X-Tenant-Id`/`X-User-Id` (and optional `X-Project-Id`/`X-Session-Id`); the flowd `Authorization: Bearer` comes from server config. The BFF **strips ALL inbound `X-*-Id` scope headers and the inbound `Authorization`** before re-materializing, and **never exposes the flowd token to the browser**. (The optional operator token the browser sends as `Authorization: Bearer` is authenticated and consumed at the app layer, not forwarded.)
 - [x] **BFF-03**: The BFF **proxies SSE responses unbuffered** — flush per event, no gzip on `text/event-stream`, long/no read timeout, `X-Accel-Buffering: no` — verified end-to-end (a `POST` stream renders incrementally, not all-at-once, through a real fronting proxy).
-- [ ] **BFF-04**: The BFF **passes through upstream status codes and error bodies** so the UI can surface the actual backend error, not a generic message.
+- [x] **BFF-04**: The BFF **passes through upstream status codes and error bodies** so the UI can surface the actual backend error, not a generic message.
 
 ### SHELL — app frame + cross-cutting legibility
 
