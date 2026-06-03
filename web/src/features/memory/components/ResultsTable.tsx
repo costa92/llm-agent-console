@@ -9,16 +9,9 @@ import {
   getSortedRowModel,
   useReactTable,
 } from '@tanstack/react-table'
-import { ArrowDown, ArrowUp, MoreHorizontal } from 'lucide-react'
+import { ArrowDown, ArrowUp } from 'lucide-react'
 
 import { CopyableId } from '@/components/primitives/CopyableId'
-import { Button } from '@/components/ui/button'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
 import {
   Table,
   TableBody,
@@ -31,6 +24,7 @@ import { cn } from '@/lib/utils'
 import type { RecallHit } from '@/features/memory/api/schemas'
 import { useMemorySearchParams } from '../hooks/useMemorySearchParams'
 import { DisabledBadge, PinnedBadge } from './StateBadges'
+import { LifecycleActions } from './LifecycleActions'
 
 export interface ResultsTableProps {
   /** The fetched recall hits (already score-desc from the gateway). */
@@ -143,28 +137,19 @@ export function ResultsTable({ hits, topK }: ResultsTableProps) {
       {
         id: 'actions',
         header: '',
-        cell: () => (
-          // Lifecycle action items (pin/disable/delete) are wired in plan 02-05.
-          // Render the trigger only; stop row-click propagation on it.
-          <span onClick={(e) => e.stopPropagation()}>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="size-8"
-                  aria-label="Row actions"
-                >
-                  <MoreHorizontal className="size-4" aria-hidden />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem disabled>
-                  Lifecycle actions arrive in 02-05
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </span>
+        cell: ({ row }) => (
+          // Row quick-actions menu (D-06): pin/disable/delete for fast triage,
+          // without opening the drawer. The component stops row-click
+          // propagation itself. expected_version is threaded from the hit.
+          <LifecycleActions
+            item={{
+              memory_id: row.original.memory_id,
+              version: row.original.version,
+              pinned: row.original.pinned,
+              disabled: row.original.disabled,
+            }}
+            variant="row"
+          />
         ),
       },
     ],

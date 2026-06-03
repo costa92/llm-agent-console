@@ -17,6 +17,7 @@ import type { NormalizedGatewayError } from '@/features/memory/api/client'
 import { useMemorySearchParams } from '../hooks/useMemorySearchParams'
 import { DisabledBadge, PinnedBadge } from './StateBadges'
 import { EditorDrawer } from './EditorDrawer'
+import { LifecycleActions } from './LifecycleActions'
 
 /**
  * Item detail drawer — Slice B (MEM-02 / D-04/D-05 / IC-2).
@@ -204,39 +205,36 @@ function ItemDetail({ item }: { item: MemoryItem }) {
 
       <Separator />
 
-      {/* Action-region host — PLACEHOLDERS. Handlers are intentional no-op stubs.
-          Plan 02-04 wires the Patch editor; plan 02-05 wires the lifecycle set
-          (pin/unpin/disable/enable/delete + confirms + OCC). This plan only
-          establishes the host so 04/05 slot in without restructuring. */}
-      <LifecycleActions item={item} />
+      {/* Action region: the Patch editor (02-04) + the full lifecycle set
+          (pin/unpin/disable/enable/delete + the two confirm weights, 02-05). */}
+      <DrawerActionRegion item={item} />
     </div>
   )
 }
 
 /**
- * Action-region host. The Patch action (02-04, D-07/D-08) opens the EditorDrawer
- * in PATCH mode pre-filled with this item's patchable fields. The pin/disable/
- * delete controls remain disabled placeholders until plan 02-05 wires them.
+ * Drawer action region. The Patch action (02-04, D-07/D-08) opens the
+ * EditorDrawer in PATCH mode pre-filled with this item's patchable fields. The
+ * lifecycle set (02-05) is the shared `LifecycleActions` in `drawer` variant:
+ * pin/unpin/disable/enable/delete with the two confirm weights + pessimistic
+ * in-flight. A successful delete clears `?item` (D-05) so the drawer closes.
  */
-function LifecycleActions({ item }: { item: MemoryItem }) {
+function DrawerActionRegion({ item }: { item: MemoryItem }) {
+  const { setItem } = useMemorySearchParams()
   const [patchOpen, setPatchOpen] = useState(false)
 
   return (
     <div className="flex flex-wrap gap-2" aria-label="Lifecycle actions">
       {/* Patch editor → EditorDrawer (patch mode), pre-filled patchable fields. */}
       <Button onClick={() => setPatchOpen(true)}>Patch</Button>
-      {/* Pin/unpin → plan 02-05 (D-06). */}
-      <Button variant="outline" disabled title="Lifecycle actions arrive in plan 02-05">
-        {item.pinned ? 'Unpin' : 'Pin'}
-      </Button>
-      {/* Disable/enable → plan 02-05 (D-06). */}
-      <Button variant="outline" disabled title="Lifecycle actions arrive in plan 02-05">
-        {item.disabled ? 'Enable' : 'Disable'}
-      </Button>
-      {/* Delete (destructive, confirm dialog) → plan 02-05 (D-10/D-11). */}
-      <Button variant="outline" disabled title="Lifecycle actions arrive in plan 02-05">
-        Delete
-      </Button>
+
+      {/* Lifecycle set (D-06 drawer / D-10 confirms / D-11 pessimistic). Delete
+          clears ?item on success so the drawer closes (D-05). */}
+      <LifecycleActions
+        item={item}
+        variant="drawer"
+        onDeleted={() => setItem(undefined)}
+      />
 
       {/* Keyed on open so it remounts pre-filled from the current item each time. */}
       {patchOpen && (
