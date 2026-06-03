@@ -19,6 +19,30 @@ export const memoryKeys = {
 }
 
 /**
+ * Per-item PARTIAL marker keys (D-09 cardinal-sin guard). A mutation whose
+ * follow-up GET-item refetch fails writes `{message}` here (via setQueryData) so
+ * the open drawer can render the amber "Showing partial data" banner over the
+ * stale body without re-deriving it from the mutation. A successful refresh
+ * clears it. This is console-local UI state stored in the cache so the
+ * EditorDrawer (which closes on the 200) and the ItemDrawer (which stays open
+ * and reads it) communicate without prop drilling.
+ */
+export const partialKeys = {
+  itemPartial: (id: string) => ['memory-item-partial', id] as const,
+}
+
+/** Read the per-item partial marker the mutations set on a refetch-after fail. */
+export function useItemPartial(id: string | undefined) {
+  return useQuery({
+    queryKey: partialKeys.itemPartial(id ?? ''),
+    // No queryFn: this key is only ever written via setQueryData. Disabled so it
+    // never fetches; we just observe whatever the mutation hooks wrote.
+    queryFn: () => null as { message: string } | null,
+    enabled: false,
+  })
+}
+
+/**
  * Build the Phase-1 apiFetch from the current operator context so the
  * `X-Console-*` identity headers are injected (the BFF re-materializes
  * authoritative scope). This is the ONLY identity-injection point — the client
