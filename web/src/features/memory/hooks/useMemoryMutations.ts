@@ -9,10 +9,18 @@ import {
   write,
   patch,
   getItem,
+  pin,
+  unpin,
+  disable,
+  enable,
+  del,
   type ApiFetch,
   type NormalizedGatewayError,
   type WriteResponse,
   type MutationVersionResponse,
+  type PinResponse,
+  type DisableResponse,
+  type DeleteResponse,
 } from '../api/client'
 import { memoryKeys, partialKeys } from '../api/queries'
 import type { WriteRecord, PatchFields } from '../api/schemas'
@@ -292,6 +300,259 @@ export function usePatchMutation() {
         gw?.httpStatus ?? 0,
         gw?.error.message ?? 'request failed',
       )
+    },
+  })
+}
+
+// ── Lifecycle mutations (Slice C-2 — plan 05) ────────────────────────────────
+//
+// D-09 (hybrid reflect strategy): pin/unpin/disable/enable echo the toggled
+// flag + the new version (`{pinned|disabled, version}`). Unlike write/patch
+// (which return a lean body and so REFETCH GET item, D-09), these endpoints
+// echo the authoritative flag, so we REFLECT-FROM-RESPONSE: merge the echoed
+// `{flag, version}` onto the cached item AND the matching recall hit via
+// setQueryData/setQueriesData — NO GET refetch, NO re-run recall.
+//
+// delete → `{deleted, version}` → SPLICE the matching hit out of the cached
+// recall data + drop the item cache entry; recall is NOT re-run (D-09).
+//
+// Every lifecycle call threads `expected_version` = the cached version (passed
+// by the caller from the hit/item); the response's new `version` replaces the
+// cached one so the NEXT action threads a fresh expected_version (IC-4 OCC).
+//
+// terminalStateShortCircuit: pin/unpin/disable/enable are idempotent
+// server-side, so a double-click is a no-op success — not a spurious 409.
+//
+// D-11 (pessimistic): in-flight is each mutation's `isPending`; there are NO
+// optimistic flips — the cache changes only in onSuccess (after the 200).
+//
+// IC-5 (409): every lifecycle onError runs `handle409Conflict` (the shared
+// 02-04 helper) first — amber recovery + auto-refetch GET item (whose own
+// refetch-fail → partial-banner treatment is the 02-04 default) — and falls
+// through to the generic SHELL-06 red toast only on a non-409 failure.
+
+/**
+ * Reflect a lifecycle flag echo onto the cache IN PLACE (D-09). Merges the
+ * partial `{flag, version}` patch onto the cached item (memoryKeys.item) AND
+ * the matching recall hit (over the ['recall'] key) — never refetches the item,
+ * never re-runs recall.
+ */
+function reflectFlag(
+  queryClient: ReturnType<typeof useQueryClient>,
+  memoryId: string,
+  flagPatch: Record<string, unknown>,
+) {
+  // Item cache (drawer body): merge the flag + version onto the open item.
+  queryClient.setQueryData(memoryKeys.item(memoryId), (prev: unknown) =>
+    typeof prev === 'object' && prev != null
+      ? { ...prev, ...flagPatch }
+      : prev,
+  )
+  // Recall hits (results table): merge the flag + version onto the matching hit.
+  queryClient.setQueriesData({ queryKey: ['recall'] }, (prev: unknown) => {
+    if (
+      typeof prev !== 'object' ||
+      prev == null ||
+      !('hits' in prev) ||
+      !Array.isArray((prev as { hits: unknown[] }).hits)
+    ) {
+      return prev
+    }
+    const data = prev as { hits: Array<{ memory_id: string }> }
+    return {
+      ...data,
+      hits: data.hits.map((hit) =>
+        hit.memory_id === memoryId ? { ...hit, ...flagPatch } : hit,
+      ),
+    }
+  })
+}
+
+/**
+ * Splice a deleted item out of the cached recall data (D-09). Removes the
+ * matching hit from every cached recall query and drops the item cache entry +
+ * its partial marker. Recall is NOT re-run.
+ */
+function spliceDeleted(
+  queryClient: ReturnType<typeof useQueryClient>,
+  memoryId: string,
+) {
+  queryClient.setQueriesData({ queryKey: ['recall'] }, (prev: unknown) => {
+    if (
+      typeof prev !== 'object' ||
+      prev == null ||
+      !('hits' in prev) ||
+      !Array.isArray((prev as { hits: unknown[] }).hits)
+    ) {
+      return prev
+    }
+    const data = prev as { hits: Array<{ memory_id: string }> }
+    return {
+      ...data,
+      hits: data.hits.filter((hit) => hit.memory_id !== memoryId),
+    }
+  })
+  // The item no longer exists — drop its cache entry + any partial marker.
+  queryClient.removeQueries({ queryKey: memoryKeys.item(memoryId) })
+  queryClient.removeQueries({ queryKey: partialKeys.itemPartial(memoryId) })
+}
+
+export type LifecycleMutationVars = {
+  id: string
+  expected_version: number
+}
+
+/** Generic non-409 failure → the generic SHELL-06 red toast. */
+function reportLifecycleError(err: unknown, actionLabel: string) {
+  const gw = asGatewayError(err)
+  reportError(
+    actionLabel,
+    gw?.httpStatus ?? 0,
+    gw?.error.message ?? 'request failed',
+  )
+}
+
+/**
+ * usePinMutation — POST /memory/items/{id}/pin. Threads expected_version (OCC);
+ * on success reflects the echoed `{pinned, version}` onto the cached item + hit
+ * (D-09 reflect-from-response, no refetch); fires "Pinned.". A 409 reuses
+ * handle409Conflict; any other failure is the generic red toast.
+ */
+export function usePinMutation() {
+  const apiFetch = useApiFetch()
+  const queryClient = useQueryClient()
+
+  return useMutation<PinResponse, unknown, LifecycleMutationVars>({
+    mutationFn: ({ id, expected_version }) => pin(apiFetch, id, expected_version),
+    onSuccess: (res) => {
+      reflectFlag(queryClient, res.memory_id, {
+        pinned: res.pinned,
+        version: res.version,
+      })
+      toast.success('Pinned.')
+    },
+    onError: async (err, vars) => {
+      const handled = await handle409Conflict(err, vars.id, {
+        actionLabel: 'Pin',
+        queryClient,
+        apiFetch,
+      })
+      if (handled) return
+      reportLifecycleError(err, 'Pin')
+    },
+  })
+}
+
+/** useUnpinMutation — POST /memory/items/{id}/unpin. See usePinMutation. */
+export function useUnpinMutation() {
+  const apiFetch = useApiFetch()
+  const queryClient = useQueryClient()
+
+  return useMutation<PinResponse, unknown, LifecycleMutationVars>({
+    mutationFn: ({ id, expected_version }) =>
+      unpin(apiFetch, id, expected_version),
+    onSuccess: (res) => {
+      reflectFlag(queryClient, res.memory_id, {
+        pinned: res.pinned,
+        version: res.version,
+      })
+      toast.success('Unpinned.')
+    },
+    onError: async (err, vars) => {
+      const handled = await handle409Conflict(err, vars.id, {
+        actionLabel: 'Unpin',
+        queryClient,
+        apiFetch,
+      })
+      if (handled) return
+      reportLifecycleError(err, 'Unpin')
+    },
+  })
+}
+
+/**
+ * useDisableMutation — POST /memory/items/{id}/disable. Reflects the echoed
+ * `{disabled, version}` (D-09); fires "Disabled."; 409 reuses
+ * handle409Conflict.
+ */
+export function useDisableMutation() {
+  const apiFetch = useApiFetch()
+  const queryClient = useQueryClient()
+
+  return useMutation<DisableResponse, unknown, LifecycleMutationVars>({
+    mutationFn: ({ id, expected_version }) =>
+      disable(apiFetch, id, expected_version),
+    onSuccess: (res) => {
+      reflectFlag(queryClient, res.memory_id, {
+        disabled: res.disabled,
+        version: res.version,
+      })
+      toast.success('Disabled.')
+    },
+    onError: async (err, vars) => {
+      const handled = await handle409Conflict(err, vars.id, {
+        actionLabel: 'Disable',
+        queryClient,
+        apiFetch,
+      })
+      if (handled) return
+      reportLifecycleError(err, 'Disable')
+    },
+  })
+}
+
+/** useEnableMutation — POST /memory/items/{id}/enable. See useDisableMutation. */
+export function useEnableMutation() {
+  const apiFetch = useApiFetch()
+  const queryClient = useQueryClient()
+
+  return useMutation<DisableResponse, unknown, LifecycleMutationVars>({
+    mutationFn: ({ id, expected_version }) =>
+      enable(apiFetch, id, expected_version),
+    onSuccess: (res) => {
+      reflectFlag(queryClient, res.memory_id, {
+        disabled: res.disabled,
+        version: res.version,
+      })
+      toast.success('Enabled.')
+    },
+    onError: async (err, vars) => {
+      const handled = await handle409Conflict(err, vars.id, {
+        actionLabel: 'Enable',
+        queryClient,
+        apiFetch,
+      })
+      if (handled) return
+      reportLifecycleError(err, 'Enable')
+    },
+  })
+}
+
+/**
+ * useDeleteMutation — DELETE /memory/items/{id} (body-bearing). Threads
+ * expected_version (OCC); on success SPLICES the row out of the cached recall
+ * data + drops the item cache (D-09 — no re-run recall); fires "Deleted.". A
+ * 409 reuses handle409Conflict (the row is NOT removed — state flips only on a
+ * real 200, D-11); any other failure is the generic red toast.
+ */
+export function useDeleteMutation() {
+  const apiFetch = useApiFetch()
+  const queryClient = useQueryClient()
+
+  return useMutation<DeleteResponse, unknown, LifecycleMutationVars>({
+    mutationFn: ({ id, expected_version }) => del(apiFetch, id, expected_version),
+    onSuccess: (res) => {
+      spliceDeleted(queryClient, res.memory_id)
+      toast.success('Deleted.')
+    },
+    onError: async (err, vars) => {
+      const handled = await handle409Conflict(err, vars.id, {
+        actionLabel: 'Delete',
+        queryClient,
+        apiFetch,
+      })
+      if (handled) return
+      reportLifecycleError(err, 'Delete')
     },
   })
 }
