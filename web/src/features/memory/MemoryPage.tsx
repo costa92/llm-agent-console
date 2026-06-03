@@ -6,6 +6,7 @@ import { FiveStateWrapper } from '@/components/primitives/FiveStateWrapper'
 import { useRecallQuery } from '@/features/memory/api/queries'
 import { SearchControls } from './components/SearchControls'
 import { ResultsTable } from './components/ResultsTable'
+import { ItemDrawer } from './components/ItemDrawer'
 import { useMemorySearchParams } from './hooks/useMemorySearchParams'
 import type { NormalizedGatewayError } from '@/features/memory/api/client'
 
@@ -107,6 +108,11 @@ function MemoryConsole() {
           </FiveStateWrapper>
         )}
       </section>
+
+      {/* Item detail drawer (Slice B) — mounted once; opens over the list when
+          ?item is set (its own ?item-synced open state). It overlays the results
+          rather than replacing them (D-04 — drawer, not a full route). */}
+      <ItemDrawer />
     </div>
   )
 }
