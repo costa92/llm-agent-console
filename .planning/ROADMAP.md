@@ -32,7 +32,14 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. The BFF reaches only allowlisted mapped routes, injects gateway/flowd auth server-side, strips inbound client-set scope headers, and the flowd bearer token never appears in the browser bundle, network responses, or logs (grep-gated).
   4. A `POST` SSE stream proxied through the BFF renders incrementally (per-event flush, no gzip on `text/event-stream`, idle-period survival via a raised nginx `proxy_read_timeout` — the BFF injects NO heartbeat, and flowd/chat emit none) — verified with `curl -N` and in-browser through a real fronting proxy with compression on. **Gate split:** Phase 1 proves only the *transport* (unbuffered flush, no gzip, idle-period survival through the real fronting proxy) and may use a synthetic test-stream endpoint; *auth injection on the stream hop, upstream-heartbeat-absence, and replay semantics* are proven in Phase 3 against real flowd.
   5. The BFF passes through upstream status codes and error bodies, and every view exposes loading/empty/error states, toast feedback, a copyable raw-JSON viewer, and one-click id copy.
-**Plans**: TBD
+**Plans**: 5 plans
+
+Plans:
+- [ ] 01-01-PLAN.md — BFF skeleton + synthetic SSE proof endpoint + nginx config (BFF-03 keystone gate)
+- [ ] 01-02-PLAN.md — SPA scaffold (Vite + React 19 + TypeScript 5.9.3 + Tailwind v4 + shadcn + Vitest)
+- [ ] 01-03-PLAN.md — Auth boundary: three upstream directors + operator token middleware + /api/config/env
+- [ ] 01-04-PLAN.md — Shell layout: NavBar + TopBar + OperatorContextBar + HealthDot + placeholder routes
+- [ ] 01-05-PLAN.md — Cross-cutting primitives: FiveStateWrapper + RawJsonViewer + CopyableId
 **UI hint**: yes
 
 ### Phase 2: Memory Console
