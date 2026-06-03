@@ -70,8 +70,8 @@ None yet.
 
 ### Blockers/Concerns
 
-- [Phase 1]: BFF-03 SSE pass-through is the keystone risk — must be an explicit acceptance gate (curl -N + browser through a real proxy with compression on) before any streaming UI.
-- [Phase 3]: Flag for phase-specific research — verify BFF SSE-flush/heartbeat against the actual deploy proxy; confirm flowd/chat heartbeat behavior and flowd resume vs. separate `/replay`.
+- [Phase 1]: BFF-03 SSE pass-through is the keystone risk — must be an explicit acceptance gate (curl -N + browser through a real proxy with compression on) before any streaming UI. Phase 1 proves *transport only* (unbuffered flush, no gzip, idle-period survival via raised nginx `proxy_read_timeout`; may use a synthetic stream); auth-on-stream + replay are proven in Phase 3.
+- [Phase 3]: Flag for phase-specific research — verify BFF SSE-flush against the actual deploy proxy. Confirmed: flowd/chat emit NO upstream heartbeats and the BFF is a pure pass-through that injects none — idle survival rides on nginx/LB `proxy_read_timeout` covering the longest silent step, with flowd `/replay` + client reconnect for drops. Confirm flowd resume via separate `/replay` (not `Last-Event-ID`).
 - [Phase 6]: Verify umbrella fronting proxy/LB (buffering, gzip, idle timeout) against SSE routes; environment-specific.
 
 ## Deferred Items

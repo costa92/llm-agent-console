@@ -30,7 +30,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   1. Operator loads the console from a single origin and navigates between Memory, Flow, and Chat console placeholders via a persistent shell/nav.
   2. Operator sets tenant/user (and optional project/session) operator context that persists across reloads and is always displayed, alongside the active environment/endpoint the BFF targets.
   3. The BFF reaches only allowlisted mapped routes, injects gateway/flowd auth server-side, strips inbound client-set scope headers, and the flowd bearer token never appears in the browser bundle, network responses, or logs (grep-gated).
-  4. A `POST` SSE stream proxied through the BFF renders incrementally (per-event flush, no gzip on `text/event-stream`, heartbeat keeps idle streams alive) — verified with `curl -N` and in-browser through a real fronting proxy with compression on.
+  4. A `POST` SSE stream proxied through the BFF renders incrementally (per-event flush, no gzip on `text/event-stream`, idle-period survival via a raised nginx `proxy_read_timeout` — the BFF injects NO heartbeat, and flowd/chat emit none) — verified with `curl -N` and in-browser through a real fronting proxy with compression on. **Gate split:** Phase 1 proves only the *transport* (unbuffered flush, no gzip, idle-period survival through the real fronting proxy) and may use a synthetic test-stream endpoint; *auth injection on the stream hop, upstream-heartbeat-absence, and replay semantics* are proven in Phase 3 against real flowd.
   5. The BFF passes through upstream status codes and error bodies, and every view exposes loading/empty/error states, toast feedback, a copyable raw-JSON viewer, and one-click id copy.
 **Plans**: TBD
 **UI hint**: yes
@@ -62,7 +62,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   5. Operator browses a completed run's events and replays them in the same timeline renderer used for live runs, with late-join events hydrated from `/events` then de-duped against the live stream.
 **Plans**: TBD
 **UI hint**: yes
-**Research**: Flag for phase-specific research (`/gsd:plan-phase --research-phase`) — highest-risk phase: verify BFF SSE-flush hardening + heartbeat against the actual deploy proxy, and confirm whether flowd/chat emit heartbeats and whether flowd honors any resume vs. the separate `/replay` endpoint.
+**Research**: Flag for phase-specific research (`/gsd:plan-phase --research-phase`) — highest-risk phase: verify BFF SSE-flush hardening against the actual deploy proxy. Confirmed (no longer open): flowd/chat emit NO upstream heartbeats and the BFF is a pure pass-through that injects none — so the open item is verifying the nginx/LB `proxy_read_timeout` covers the longest silent step, with flowd `/replay` + client reconnect covering drops. Also confirm flowd honors resume via the separate `/replay` endpoint (not `Last-Event-ID`).
 
 ### Phase 4: Chat Console
 **Goal**: An operator can drive a customer-support chat session, watch streamed agent steps render incrementally with session continuity, and fall back to a synchronous one-shot — reusing the Phase 3 SSE infra.

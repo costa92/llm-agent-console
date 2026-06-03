@@ -51,17 +51,17 @@ A long flow run or a slow chat completion is severed mid-stream after 30–60s o
 - The BFF's own server write/read timeouts are set globally and not relaxed for streaming routes.
 - Backends may emit nothing during a long step, so the connection *looks* idle.
 
-**How to avoid:**
-- Emit a **heartbeat/keepalive** from the BFF on a timer (e.g. an SSE comment line `: keepalive\n\n` every 15–20s) so the connection never looks idle. This is the single most effective fix.
+**How to avoid:** *(updated 2026-06-03: no BFF heartbeat — pure pass-through.)*
+- **Raise `proxy_read_timeout` on the fronting nginx SSE locations (e.g. ≥1h) and document the LB idle-timeout** so the connection survives the longest silent step. This is the primary fix. *(updated 2026-06-03: the BFF is a pure `httputil.ReverseProxy` pass-through and CANNOT inject SSE keepalives — a ReverseProxy structurally cannot — and flowd/chat emit no heartbeat, so the old "emit `: keepalive` from the BFF" guidance does not apply. BFF-side heartbeat injection would require a custom relay, which contradicts the locked proxy-only decision; it is deferred/out of scope unless a deploy hop's idle timeout proves unraisable.)*
+- Rely on the **browser fetch-stream client's reconnect + flowd's `POST /runs/{id}/replay` resume** to recover any drop, rather than keeping the connection artificially alive.
 - Set generous (or zero/disabled) read timeouts on SSE routes in the BFF; do **not** apply a global short `WriteTimeout` to streaming handlers.
-- Raise proxy idle/read timeouts on SSE locations and document the required LB idle-timeout for deployment.
 
 **Warning signs:**
 - Streams die at a suspiciously round interval (30s/60s/120s).
 - Reconnects cluster around quiet phases of a run.
 - Short flows work; long flows always cut off.
 
-**Phase to address:** **P2 (SSE streaming path)** — heartbeat is part of the streaming primitive, not a later add-on.
+**Phase to address:** **P2 (SSE streaming path)** — *(updated 2026-06-03: the survival primitive is the raised nginx `proxy_read_timeout` + client-reconnect/`/replay`, NOT a BFF heartbeat.)*
 
 ---
 
@@ -74,8 +74,7 @@ When a stream errors (backend down, BFF restart, timeout), the browser's EventSo
 EventSource auto-reconnects by design (HTML spec default retry 3000ms) and there is **no built-in backoff or cap**. Developers treat reconnection as "free" and never surface errors or close dead streams. Naive BFF proxies forward a 200 then close, so the browser keeps re-establishing a doomed stream.
 
 **How to avoid:**
-- Have the BFF send a `retry:` field to widen the client retry interval where appropriate.
-- Implement client-side backoff/cap: on repeated `onerror`, increase delay and after N failures **`eventSource.close()`** and show an explicit "stream disconnected — retry?" state instead of silently reconnecting forever.
+- *(updated 2026-06-03: the BFF is a pure pass-through and does NOT inject `retry:` — flowd/chat emit no `retry:` field. Tune retry on the client instead.)* Implement client-side backoff/cap (the fetch-event-source client owns reconnect; native `EventSource` is unused since the streams are POST): on repeated `onerror`, increase delay and after N failures **`close()`** and show an explicit "stream disconnected — retry?" state instead of silently reconnecting forever.
 - Distinguish *terminal* stream end (run finished → BFF should signal completion and the client must `close()`, because EventSource would otherwise reconnect to a finished run) from *transient* errors. Send an explicit `event: done` / `event: end` so the client knows to stop.
 - Close streams when a tab/view is unmounted or hidden.
 
@@ -84,7 +83,7 @@ EventSource auto-reconnects by design (HTML spec default retry 3000ms) and there
 - A finished run keeps re-opening a stream (EventSource reconnecting to a completed run).
 - Backend request volume spikes during outages instead of backing off.
 
-**Phase to address:** **P2** for the BFF-side `retry:`/`done` signaling and terminal-end semantics; **P4/P5** for per-console client backoff + disconnected UI state.
+**Phase to address:** **P2** for terminal-`done` handling (both backends already emit a terminal `done`/`flow_done` — the BFF passes it through; the client closes on it); **P4/P5** for per-console client backoff + disconnected UI state. *(updated 2026-06-03: no BFF `retry:` injection — pure pass-through.)*
 
 ---
 
@@ -123,7 +122,7 @@ The whole reason for the BFF is server-side auth injection. If the flowd `FLOWD_
 
 **How to avoid:**
 - The bearer token lives **only** in BFF server config/env and is injected on the *outbound* request to flowd. It must never appear in any BFF→browser response, URL, or log.
-- Because EventSource can't send `Authorization`, the **browser authenticates to the BFF via same-origin session cookie**, and the BFF (not the browser) adds the bearer on the upstream hop. This is the correct single-origin pattern and a primary justification for the BFF.
+- *(updated 2026-06-03: shared-token model, not a cookie.)* The streams are **POST** so the browser uses `@microsoft/fetch-event-source` (not native `EventSource`) and **can** send `Authorization` — so the **browser authenticates to the same-origin BFF with the optional shared operator token as `Authorization: Bearer` (held in memory, not `localStorage`)**, which the BFF verifies at the app layer and consumes (does not forward). The BFF (not the browser) adds the *flowd* bearer on the upstream hop. This is the correct single-origin pattern and a primary justification for the BFF.
 - Audit: grep BFF responses and front-end bundle for the token; ensure `/healthz`/config endpoints don't echo secrets.
 - Never log full upstream request headers on SSE routes.
 
@@ -149,7 +148,7 @@ A "pass everything through" proxy lets the browser control which upstream is hit
 
 **How to avoid:**
 - **Allowlist routes, not pass-through.** The BFF should expose explicit, mapped endpoints to each backend — never a generic "proxy to URL X" handler.
-- **Strip inbound `X-Tenant-Id`/`X-User-Id`/`X-Project-Id`/`X-Session-Id` from the client request and set them server-side** from the BFF's authenticated operator context. The client must not be able to inject scope headers.
+- **Strip inbound `X-Tenant-Id`/`X-User-Id`/`X-Project-Id`/`X-Session-Id` (any client-set `X-*-Id`) and the inbound `Authorization` from the client request, then re-materialize the gateway scope headers server-side** from the browser's non-secret `X-Console-Tenant`/`X-Console-User`/`X-Console-Project`/`X-Console-Session` values. The client must not be able to inject the trusted `X-*-Id` scope headers directly. *(updated 2026-06-03: client conveys scope as `X-Console-*`; the BFF renames/re-materializes — never trusts a client-set `X-Tenant-Id`. The gateway's `MergeAuthoritativeScope` forces header scope over body scope, so getting these headers right is the whole auth boundary.)*
 - Pin upstream base URLs in BFF config; never derive the target host from client input.
 - Drop hop-by-hop and auth headers the client shouldn't control before forwarding.
 
@@ -289,9 +288,9 @@ Effort sinks into a graphical drag-and-drop flow/DAG builder or full metrics das
 | Shortcut | Immediate Benefit | Long-term Cost | When Acceptable |
 |----------|-------------------|----------------|-----------------|
 | Generic pass-through `ReverseProxy` for all 3 backends | Fast to wire all routes | Confused-deputy/SSRF + header-spoofing; hard to retrofit allowlisting | **Never** — start with explicit mapped routes |
-| Pass flowd token to browser so EventSource "just works" | Skip the cookie/session plumbing | Token leak = security model gone | **Never** — same-origin cookie + server-side injection from the start |
+| Pass flowd token to browser so the stream "just works" | Skip the BFF token plumbing | Token leak = security model gone | **Never** — app-layer shared operator token + server-side flowd-bearer injection from the start *(updated 2026-06-03: shared token, not cookie)* |
 | Live SSE only, skip `/runs/{id}/events` + replay | Ship the run viewer sooner | Late joiners/reconnects show gaps; rework to add hydrate+dedupe | Only for a throwaway P2 streaming proof, not P4 |
-| No heartbeat on SSE | Less code | Long runs die at proxy idle timeout | Never for production; OK only in the localhost proof |
+| ~~No heartbeat on SSE~~ Rely on raised proxy timeout, no heartbeat | Less code; matches pure pass-through | Long runs die if a deploy hop's idle timeout can't be raised | *(updated 2026-06-03)* This is now the **chosen** design (BFF is pure pass-through, flowd/chat emit no heartbeat) — survival rides on the raised nginx `proxy_read_timeout` + client reconnect/`/replay`; revisit only if a hop's idle timeout proves unraisable |
 | Unbounded event arrays in component state | Trivial to write | Tab memory blowup on long runs | OK for early prototype with short runs; fix before P4 ships |
 | Optimistic CRUD with no rollback | Snappy UI | Operators see false state; trust loss | Only with confirmed rollback+refetch wired in |
 | Global short server WriteTimeout applied to all routes | One config | Silently truncates streams | Never on SSE routes; exempt them explicitly |
@@ -300,7 +299,7 @@ Effort sinks into a graphical drag-and-drop flow/DAG builder or full metrics das
 
 | Integration | Common Mistake | Correct Approach |
 |-------------|----------------|------------------|
-| memory-gateway (`X-Tenant-Id`/`X-User-Id` auth) | Forward client-supplied scope headers | Strip inbound scope headers; set them server-side from operator context |
+| memory-gateway (`X-Tenant-Id`/`X-User-Id` auth) | Forward client-supplied scope headers | Strip inbound `X-*-Id`; re-materialize `X-Tenant-Id`/`X-User-Id` server-side from the browser's `X-Console-*` values *(updated 2026-06-03)* |
 | flowd (bearer + SSE) | Token in browser / SSE URL; rely on EventSource resume | Token server-side only; bridge `/runs/{id}/replay` + `/events` for catch-up |
 | flowd replay | Assume `Last-Event-ID` auto-replay works on the live stream | flowd uses a *separate* replay endpoint — BFF must call it and dedupe |
 | customer-support chat (no auth, IP rate-limited) | Treat it like the others; ignore rate limits; expect replay | No replay endpoint — persisted turns are authoritative, streaming delta is ephemeral; respect IP rate limits via the BFF |
@@ -322,9 +321,9 @@ Effort sinks into a graphical drag-and-drop flow/DAG builder or full metrics das
 | Mistake | Risk | Prevention |
 |---------|------|------------|
 | flowd bearer token reaches browser (JS, URL, log) | Direct unauthenticated access to flowd | Token in BFF env only; injected on upstream hop; grep gate on responses/bundle |
-| Forwarding client `X-Tenant-Id`/`X-User-Id` to gateway | Tenant/user impersonation (gateway has no other auth) | Strip inbound; set scope server-side from operator context |
+| Forwarding client `X-Tenant-Id`/`X-User-Id` to gateway | Tenant/user impersonation (gateway has no other auth) | Strip inbound `X-*-Id`; re-materialize scope server-side from the browser's `X-Console-*` *(updated 2026-06-03)* |
 | Generic proxy taking target from client input | SSRF to internal services | Allowlist explicit mapped routes; pin upstream hosts in config |
-| Token in SSE query string | Leaks into proxy/access logs | Use same-origin session cookie for browser→BFF auth |
+| Token in SSE query string | Leaks into proxy/access logs | *(updated 2026-06-03)* Browser→BFF auth via the shared operator token as `Authorization: Bearer` (fetch-event-source can set headers since streams are POST); never put any token in the URL |
 | Logging full request headers on SSE routes | Secret leakage to logs | Redact/strip auth headers from SSE-route logging |
 | No operator auth on the BFF itself | Anyone on the network operates all 3 backends | BFF holds operator-side credential/session (PROJECT.md: "BFF holds operator-side credentials") — don't skip it |
 
@@ -341,7 +340,7 @@ Effort sinks into a graphical drag-and-drop flow/DAG builder or full metrics das
 ## "Looks Done But Isn't" Checklist
 
 - [ ] **SSE streaming:** Verify it streams **through a real proxy with compression on**, not just localhost — `curl -N` *and* browser, with gzip enabled upstream.
-- [ ] **Long runs:** Verify a >2min run with quiet periods doesn't get cut by idle timeout — confirm heartbeat is flowing.
+- [ ] **Long runs:** Verify a >2min run with quiet periods doesn't get cut by idle timeout — *(updated 2026-06-03)* confirm **no idle-timeout cut** through the real fronting proxy (the survival mechanism is the raised nginx `proxy_read_timeout`, NOT a heartbeat — flowd/chat emit none and the BFF injects none).
 - [ ] **Reconnect:** Verify a forced BFF restart mid-run reconnects, catches up via replay/events, and **dedupes** (no duplicate or missing events).
 - [ ] **Finished run:** Verify EventSource does **not** keep reconnecting to a completed run (explicit `done`/`end` + client `close()`).
 - [ ] **Token secrecy:** Grep browser bundle + all BFF responses + logs for the flowd token — must be absent.
@@ -355,10 +354,10 @@ Effort sinks into a graphical drag-and-drop flow/DAG builder or full metrics das
 | Pitfall | Recovery Cost | Recovery Steps |
 |---------|---------------|----------------|
 | SSE buffered by proxy | LOW–MEDIUM | Add `X-Accel-Buffering: no` + per-event flush + disable gzip on SSE routes; fix proxy buffering config |
-| Long runs cut by timeout | LOW | Add heartbeat emitter; raise/disable read timeout on SSE routes |
+| Long runs cut by timeout | LOW | *(updated 2026-06-03)* Raise the fronting nginx `proxy_read_timeout` on SSE locations + disable read timeout on BFF SSE routes (no heartbeat — pure pass-through) |
 | Reconnect storm | LOW | Add client backoff/cap + `close()` on terminal/`done` |
 | Late joiners miss events | MEDIUM | Wire hydrate-from-`/events`/replay + dedupe by event id |
-| Token leaked to browser | HIGH | Rotate `FLOWD_TOKEN`; remove from client path; move auth to same-origin cookie; audit logs |
+| Token leaked to browser | HIGH | Rotate `FLOWD_TOKEN`; remove from client path; keep browser→BFF auth on the app-layer shared operator token (`Authorization: Bearer`, in-memory); audit logs *(updated 2026-06-03)* |
 | Confused-deputy/SSRF proxy | HIGH | Replace pass-through with allowlisted mapped routes; strip/set scope headers server-side |
 | Unbounded DOM/memory | MEDIUM | Introduce virtualization + bounded buffer; refactor list component |
 | REST/SSE race | MEDIUM | Introduce sequence-keyed reconciliation; snapshot-then-stream handoff |
@@ -369,7 +368,7 @@ Effort sinks into a graphical drag-and-drop flow/DAG builder or full metrics das
 | Pitfall | Prevention Phase | Verification |
 |---------|------------------|--------------|
 | SSE proxy buffering | P2 (SSE path) | `curl -N` + browser stream live through proxy with gzip on |
-| Idle-timeout kills long runs | P2 | >2min quiet-period run completes on screen; heartbeat visible |
+| Idle-timeout kills long runs | P2 | >2min quiet-period run completes on screen with **no idle-timeout cut** through the real proxy (raised `proxy_read_timeout`; no heartbeat — none emitted) *(updated 2026-06-03)* |
 | Reconnect storm | P2 (signaling) + P4/P5 (client backoff) | Finished run stops reconnecting; outage backs off |
 | Late joiners lose events | P4 (Flow console) | In-progress open + reconnect catch up with no gaps/dupes |
 | Bearer token leak | P1 (BFF) | Grep bundle/responses/logs — token absent |

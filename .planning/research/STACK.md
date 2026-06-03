@@ -75,8 +75,8 @@ npm install -D vitest @testing-library/react @testing-library/jest-dom eslint ty
 proxy := &httputil.ReverseProxy{
     Rewrite: func(r *httputil.ProxyRequest) {
         // route by path prefix to memory-gateway / flowd / chat,
-        // inject auth server-side:
-        //   gateway: X-Tenant-Id / X-User-Id
+        // strip inbound X-*-Id + Authorization, then inject auth server-side:
+        //   gateway: re-materialize X-Tenant-Id / X-User-Id from the browser's X-Console-*
         //   flowd:   Authorization: Bearer <FLOWD_TOKEN>
         //   chat:    none
     },
@@ -117,8 +117,8 @@ This is the load-bearing part of the stack.
 **BFF side (Go):**
 - `httputil.ReverseProxy` auto-flushes for `Content-Type: text/event-stream` (incl. `;charset=utf-8`) — events reach the browser immediately, no batching.
 - **Do not** wrap the proxy in any buffering/compression middleware on SSE routes (no gzip, no response-buffering logger). Buffering middleware turns the stream into a batch.
-- If a fronting proxy (nginx/Traefik/ALB) ever sits in front of the BFF, ensure the upstream SSE response carries `X-Accel-Buffering: no` and `Cache-Control: no-cache, no-transform`; pass these through unmodified.
-- Add periodic **heartbeat/keep-alive** comments (`: ping\n\n`) on long-idle streams if any intermediary kills idle connections (~30–60s). Confirm whether flowd/chat already emit them; if not, the BFF can inject — but prefer not to rewrite the stream body, just pass through.
+- A fronting proxy (nginx) **always** sits in front of the BFF in this project (Phase-1 CONTEXT D-04/D-05); ensure the upstream SSE response carries `X-Accel-Buffering: no` and `Cache-Control: no-cache, no-transform` and pass these through unmodified, and on the fronting nginx SSE locations set `proxy_buffering off; gzip off; proxy_http_version 1.1;`.
+- **The BFF is a pure pass-through — it injects NO heartbeat** (firm rule, *updated 2026-06-03*). A `httputil.ReverseProxy` structurally cannot inject SSE keepalives (that would require a custom relay, contradicting the locked proxy-only decision), and flowd (`writeSSE`) and chat (`writeSSE`) emit no `:` heartbeat / `retry:` / `id:` anyway. **Idle-timeout survival is handled at the fronting nginx via a raised `proxy_read_timeout` (e.g. ≥1h)** covering the longest silent step, plus the browser client's reconnect and flowd's `POST /runs/{id}/replay` resume. BFF-side heartbeat injection is explicitly deferred/out of scope unless a deploy hop's idle timeout proves unraisable.
 - Propagate client disconnects: cancel the upstream request when the browser aborts so flowd/chat don't keep running detached.
 
 ## Alternatives Considered
