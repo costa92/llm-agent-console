@@ -78,8 +78,35 @@ hypotheses until shipped and validated.
 
 ## Traceability
 
-<!-- Filled by the roadmapper: REQ-ID → Phase. -->
+<!-- REQ-ID → Phase. Mapped by roadmap 2026-06-03. -->
 
 | REQ-ID | Phase |
 |--------|-------|
-| _(to be mapped by roadmap)_ | |
+| BFF-01 | Phase 1 — Foundation |
+| BFF-02 | Phase 1 — Foundation |
+| BFF-03 | Phase 1 — Foundation (keystone SSE acceptance gate; consumed by Phase 3) |
+| BFF-04 | Phase 1 — Foundation |
+| SHELL-01 | Phase 1 — Foundation |
+| SHELL-03 | Phase 1 — Foundation |
+| SHELL-04 | Phase 1 — Foundation |
+| SHELL-05 | Phase 1 — Foundation |
+| SHELL-06 | Phase 1 — Foundation |
+| SHELL-07 | Phase 1 — Foundation |
+| MEM-01 | Phase 2 — Memory Console |
+| MEM-02 | Phase 2 — Memory Console |
+| MEM-03 | Phase 2 — Memory Console |
+| MEM-04 | Phase 2 — Memory Console |
+| MEM-05 | Phase 2 — Memory Console |
+| MEM-06 | Phase 2 — Memory Console |
+| MEM-07 | Phase 2 — Memory Console |
+| MEM-08 | Phase 2 — Memory Console |
+| FLOW-01 | Phase 3 — Flow Console |
+| FLOW-02 | Phase 3 — Flow Console |
+| FLOW-03 | Phase 3 — Flow Console |
+| FLOW-04 | Phase 3 — Flow Console |
+| FLOW-05 | Phase 3 — Flow Console |
+| FLOW-06 | Phase 3 — Flow Console |
+| CHAT-01 | Phase 4 — Chat Console |
+| CHAT-02 | Phase 4 — Chat Console |
+| CHAT-03 | Phase 4 — Chat Console |
+| SHELL-02 | Phase 5 — Health & Hardening |
