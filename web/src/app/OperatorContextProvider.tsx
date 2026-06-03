@@ -87,6 +87,7 @@ export function OperatorContextProvider({ children }: { children: ReactNode }) {
   )
 }
 
+// eslint-disable-next-line react-refresh/only-export-components -- canonical provider+hook co-location
 export function useOperatorContext(): OperatorContext {
   const ctx = useContext(OperatorContextReact)
   if (!ctx) {

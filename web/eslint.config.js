@@ -20,6 +20,15 @@ export default defineConfig([
     },
   },
   {
+    // TanStack Router route modules export a route object (the framework's
+    // file convention) alongside their inline page component. The route object
+    // is not a fast-refreshable component, so the rule does not apply here.
+    files: ['src/app/routes/**/*.{ts,tsx}'],
+    rules: {
+      'react-refresh/only-export-components': 'off',
+    },
+  },
+  {
     // shadcn/ui vendored components co-export a component + its `*Variants`
     // (class-variance-authority) constant by design. Allow that pattern here
     // rather than restructuring owned-but-generated component files.
