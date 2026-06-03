@@ -1,7 +1,8 @@
 ---
 phase: 2
 slug: memory-console
-status: draft
+status: approved
+reviewed_at: 2026-06-03
 shadcn_initialized: false
 preset: none
 inherits: .planning/phases/01-foundation/01-UI-SPEC.md
