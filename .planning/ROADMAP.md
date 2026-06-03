@@ -41,7 +41,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 Plans:
 **Wave 1**
 
-- [ ] 01-01-PLAN.md — BFF skeleton + synthetic SSE proof endpoint + nginx config (BFF-03 keystone gate)
+- [x] 01-01-PLAN.md — BFF skeleton + synthetic SSE proof endpoint + nginx config (BFF-03 keystone gate)
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
@@ -166,7 +166,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation | 0/5 | Not started | - |
+| 1. Foundation | 1/5 | In Progress|  |
 | 2. Memory Console | 0/5 | Not started | - |
 | 3. Flow Console | 0/TBD | Not started | - |
 | 4. Chat Console | 0/TBD | Not started | - |
