@@ -69,8 +69,8 @@ services are doing** from a single web UI.
 
 ## Constraints
 
-- **Architecture**: thin BFF/proxy, single origin — the BFF injects all three auth models server-side; no browser-side CORS or secret handling. *(Chosen over direct+CORS for robustness/security and because the 3 services have 3 different auth models.)*
-- **Tech stack**: **to be determined by GSD research** (2025 admin-console standard stack) — not pre-decided. The BFF may be Go (ecosystem-native) or the chosen frontend framework's server layer.
+- **Architecture**: thin BFF/proxy, single origin — the BFF injects all three auth models server-side; no browser-side CORS or secret handling. The BFF is **proxy-only**; single origin is preserved by a **fronting static host (nginx)** that serves the built SPA at `/` and reverse-proxies `/api/*` to the BFF (Phase-1 decision — not `go:embed`). *(Chosen over direct+CORS for robustness/security and because the 3 services have 3 different auth models.)*
+- **Tech stack** (locked by GSD research 2026-06-03): **React 19 + Vite SPA** (TanStack Router/Query + shadcn/ui + Tailwind v4, TypeScript pinned 5.9.x) + a thin **Go `httputil.ReverseProxy` BFF**; SSE consumed via `@microsoft/fetch-event-source` because the stream endpoints are SSE-over-POST (native `EventSource` is unusable).
 - **Repo placement**: separate sibling repo (`llm-agent-console`) nested under the umbrella, gitignored from it; its own git history + `.planning/`. *(Polyrepo convention.)*
 - **Backend contracts are fixed**: consume the existing APIs unchanged; do not modify the backend services.
 
@@ -78,10 +78,13 @@ services are doing** from a single web UI.
 
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
-| Unified console over all 3 services (not per-service apps) | One operator surface for the whole ecosystem; shared shell/auth/nav | — Pending |
-| Thin BFF/proxy instead of direct browser→service + CORS | Single origin; server-side injection of 3 distinct auth models; no browser secret/CORS burden | — Pending |
-| New sibling repo `llm-agent-console`, gitignored from umbrella | Matches the polyrepo split; independent history + planning | — Pending |
-| Tech stack deferred to GSD research | No strong prior; let research recommend the current standard admin-console stack | — Pending |
+| Unified console over all 3 services (not per-service apps) | One operator surface for the whole ecosystem; shared shell/auth/nav | ✓ Locked (roadmap) |
+| Thin BFF/proxy instead of direct browser→service + CORS | Single origin; server-side injection of 3 distinct auth models; no browser secret/CORS burden | ✓ Locked |
+| New sibling repo `llm-agent-console`, gitignored from umbrella | Matches the polyrepo split; independent history + planning | ✓ Done |
+| Stack: React 19 + Vite SPA + Go ReverseProxy BFF (research) | Research-recommended 2025 admin-console stack; Go auto-flushes SSE | ✓ Locked (research 2026-06-03) |
+| Packaging: proxy-only BFF + separately-hosted static SPA (fronting nginx) | Operator chose separation over `go:embed` single-binary; nginx unifies origin + serves SPA | ✓ Locked (Phase-1 CONTEXT) — fronting proxy is now a mandatory SSE-buffering surface |
+| BFF operator-auth: trusted-network + optional shared token | Internal tool; no login/RBAC (auth at BFF/ingress) | ✓ Locked (Phase-1 CONTEXT) |
+| Upstream config via config file (YAML), not env-first | File is source of truth; env overrides secrets only | ✓ Locked (Phase-1 CONTEXT) |
 
 ## Evolution
 
@@ -101,4 +104,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-06-02 after initialization*
+*Last updated: 2026-06-03 — stack locked by research; packaging/auth/config locked by Phase-1 discussion*

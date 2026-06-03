@@ -4,6 +4,8 @@
 **Researched:** 2026-06-03
 **Confidence:** HIGH (core BFF/SSE constraints verified against Go stdlib docs + multiple proxy-buffering sources; frontend specifics MEDIUM, stack-dependent)
 
+> ⚠️ **Decision override (2026-06-03, Phase-1 CONTEXT D-04/D-05/D-06):** This document recommends a **single-binary `go:embed` co-deployment** (Static asset server via `embed.FS`, Pattern 5, the "Deployment" notes). The Phase-1 discussion **chose the opposite**: a **proxy-only BFF** (no embedded SPA) with the built SPA served by a **fronting static host (nginx)** that also proxies `/api/*` to the BFF on one origin. Where this doc and `.planning/phases/01-foundation/01-CONTEXT.md` disagree on packaging, **CONTEXT wins**. Consequence: the fronting proxy is now a **mandatory** SSE-buffering surface (`proxy_buffering off`, no gzip on `text/event-stream`, `X-Accel-Buffering: no` passthrough) — the BFF-03 acceptance gate must be proven through it. The component boundaries, REST-vs-SSE split, and vertical-slice build order below remain valid.
+
 ## Standard Architecture
 
 ### System Overview

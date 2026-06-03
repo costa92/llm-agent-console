@@ -83,19 +83,19 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Requirements**: SHELL-02
 **Success Criteria** (what must be TRUE):
   1. Operator sees always-visible per-service health (up/down/degraded) for memory-gateway, flowd, and chat, polled on an interval with a last-checked timestamp.
-  2. Each area enforces five distinct states (loading/empty/error/disconnected/loaded) with no ambiguous blank screens.
+  2. Each area enforces the UI-SPEC five-state contract (loading/empty/error/partial/ready), with stream views adding the SSE-specific disconnected/reconnecting state on top — no ambiguous blank screens.
   3. Stream views show connection status with manual retry, and the client applies reconnect backoff with a cap and closes on the terminal `done` event (no reconnect storms).
 **Plans**: TBD
 **UI hint**: yes
 
 ### Phase 6: Deploy
-**Goal**: The console runs as a single long-lived compose service alongside the existing umbrella stack, with no fronting proxy buffering the stream routes.
+**Goal**: The console runs alongside the umbrella stack as a **proxy-only Go BFF** plus a **fronting static host (nginx)** that serves the built SPA and reverse-proxies `/api/*` to the BFF on one origin — with that fronting proxy configured NOT to buffer the stream routes. (Per Phase-1 CONTEXT D-04/D-05/D-06 — not a `go:embed` single binary.)
 **Mode:** mvp
 **Depends on**: Phase 5
 **Requirements**: (operationalizes BFF-01..04; no new v1 requirement)
 **Success Criteria** (what must be TRUE):
-  1. The console deploys as a single long-lived compose service (Go binary with embedded SPA), reachable in the umbrella stack — not serverless/edge.
-  2. Streamed flow runs and chat render incrementally through the deployed stack, with the fronting proxy/LB verified not to buffer, gzip, or idle-timeout the stream routes.
+  1. The console deploys as long-lived compose service(s) — a proxy-only Go BFF + a fronting static host (nginx) serving the SPA at `/` and proxying `/api/*` to the BFF on a single origin (no embedded SPA, no CORS) — reachable in the umbrella stack, not serverless/edge.
+  2. Streamed flow runs and chat render incrementally through the deployed stack, with the fronting nginx verified not to buffer, gzip, or idle-timeout the stream routes (`proxy_buffering off`, no gzip on `text/event-stream`, `X-Accel-Buffering: no` passthrough).
   3. Required LB/proxy idle-timeout and buffering settings are documented for the deploy environment.
 **Plans**: TBD
 **Research**: Flag for phase-specific research — verify the umbrella's fronting proxy/LB config (buffering, gzip, idle timeout) against SSE routes; environment-specific, not in current research.
