@@ -1,0 +1,30 @@
+# Local-dev sample config for the llm-agent-console BFF.
+#
+# Per CONTEXT.md D-02, this YAML file is the source of truth for the three
+# upstream base URLs plus the (optional) secret tokens. Env vars may override
+# the secrets, but this file is primary — the BFF fails fast if it is missing.
+#
+# Per CONTEXT.md D-03, these values target the local compose stack.
+#
+# Port-collision note (D-03): the memory-gateway and customer-support chat both
+# default to :8080 — they cannot co-locate on one host at the default. This
+# sample therefore maps chat to :8081; the real chat port is operator-configured.
+
+server:
+  # TCP port the BFF HTTP server listens on. nginx proxies to bff:8090 (D-05).
+  port: "8090"
+
+# Memory-gateway upstream base URL (D-03).
+memory_base: "http://localhost:8080"
+# flowd upstream base URL (D-03).
+flow_base: "http://localhost:7861"
+# Customer-support chat upstream base URL (D-03; :8081 to avoid the :8080 clash).
+chat_base: "http://localhost:8081"
+
+# Upstream flowd bearer token, injected server-side by the flow director.
+# Empty in dev (= disabled). Production value is injected via a non-committed
+# config file or env override. Never exposed to the browser.
+flowd_token: ""
+
+# App-layer shared operator token (D-01). Empty = operator auth disabled in dev.
+operator_token: ""
