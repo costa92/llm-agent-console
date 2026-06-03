@@ -32,7 +32,8 @@ export interface SearchControlsProps {
  *
  * Recall writes query + top_k into the URL (the recall query is driven by the
  * URL, so the search is reproducible/shareable). top_k is the ONLY server
- * re-query lever (IC-1) — there is NO server sort/offset/page control here.
+ * re-query lever (IC-1) — the gateway exposes no server ordering/windowing
+ * controls, so none are rendered here.
  */
 export function SearchControls({ onRefresh }: SearchControlsProps) {
   const params = useMemorySearchParams()
