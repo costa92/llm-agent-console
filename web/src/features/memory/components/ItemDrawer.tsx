@@ -5,16 +5,18 @@ import {
   SheetHeader,
   SheetTitle,
 } from '@/components/ui/sheet'
+import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { CopyableId } from '@/components/primitives/CopyableId'
 import { RawJsonViewer } from '@/components/primitives/RawJsonViewer'
 import { FiveStateWrapper } from '@/components/primitives/FiveStateWrapper'
-import { useItemQuery } from '@/features/memory/api/queries'
+import { useItemQuery, useItemPartial } from '@/features/memory/api/queries'
 import type { MemoryItem } from '@/features/memory/api/schemas'
 import type { NormalizedGatewayError } from '@/features/memory/api/client'
 import { useMemorySearchParams } from '../hooks/useMemorySearchParams'
 import { DisabledBadge, PinnedBadge } from './StateBadges'
+import { EditorDrawer } from './EditorDrawer'
 
 /**
  * Item detail drawer — Slice B (MEM-02 / D-04/D-05 / IC-2).
@@ -61,6 +63,11 @@ export function ItemDrawer() {
 
 function ItemDrawerBody({ id }: { id: string }) {
   const itemQuery = useItemQuery(id)
+  // D-09 cardinal-sin guard: a mutation whose refetch-after failed writes a
+  // per-item partial marker; surface it as the amber "Showing partial data"
+  // banner over the (stale) body — never silent stale content, never a red error.
+  const partialQuery = useItemPartial(id)
+  const partial = partialQuery.data ?? null
 
   const gatewayError = itemQuery.error as
     | NormalizedGatewayError
@@ -90,6 +97,7 @@ function ItemDrawerBody({ id }: { id: string }) {
       <FiveStateWrapper
         loading={itemQuery.isLoading}
         error={errorState}
+        partial={partial}
         onRetry={() => void itemQuery.refetch()}
       >
         {data != null && <ItemDetail item={data} />}
@@ -206,17 +214,17 @@ function ItemDetail({ item }: { item: MemoryItem }) {
 }
 
 /**
- * Action-region host (extension point for plans 02-04 / 02-05). Renders the
- * controls disabled so the surface is visible but inert until those plans wire
- * the mutations. Do NOT implement mutations here.
+ * Action-region host. The Patch action (02-04, D-07/D-08) opens the EditorDrawer
+ * in PATCH mode pre-filled with this item's patchable fields. The pin/disable/
+ * delete controls remain disabled placeholders until plan 02-05 wires them.
  */
 function LifecycleActions({ item }: { item: MemoryItem }) {
+  const [patchOpen, setPatchOpen] = useState(false)
+
   return (
     <div className="flex flex-wrap gap-2" aria-label="Lifecycle actions">
-      {/* Patch editor → plan 02-04 (D-07/D-08). */}
-      <Button disabled title="Patch editor arrives in plan 02-04">
-        Patch
-      </Button>
+      {/* Patch editor → EditorDrawer (patch mode), pre-filled patchable fields. */}
+      <Button onClick={() => setPatchOpen(true)}>Patch</Button>
       {/* Pin/unpin → plan 02-05 (D-06). */}
       <Button variant="outline" disabled title="Lifecycle actions arrive in plan 02-05">
         {item.pinned ? 'Unpin' : 'Pin'}
@@ -229,6 +237,17 @@ function LifecycleActions({ item }: { item: MemoryItem }) {
       <Button variant="outline" disabled title="Lifecycle actions arrive in plan 02-05">
         Delete
       </Button>
+
+      {/* Keyed on open so it remounts pre-filled from the current item each time. */}
+      {patchOpen && (
+        <EditorDrawer
+          key={`patch-${item.memory_id}-${item.version}`}
+          mode="patch"
+          item={item}
+          open={patchOpen}
+          onOpenChange={setPatchOpen}
+        />
+      )}
     </div>
   )
 }

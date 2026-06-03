@@ -189,13 +189,13 @@ async function refetchItemAfterMutation(
   id: string,
 ): Promise<boolean> {
   try {
-    // fetchQuery forces the GET unconditionally and writes the authoritative
-    // body into the item cache (refetchQueries/invalidateQueries only fire when
-    // a drawer observer is already mounted; the guard must hold regardless).
-    await queryClient.fetchQuery({
-      queryKey: memoryKeys.item(id),
-      queryFn: () => getItem(apiFetch, id),
-    })
+    // Call GET item DIRECTLY (not fetchQuery/refetchQueries) so the refetch-after
+    // fires unconditionally and deterministically — fetchQuery dedupes against a
+    // just-populated cache (a freshly-opened drawer) and refetchQueries needs an
+    // active observer; neither guarantees the network hit the guard depends on.
+    // On success we write the authoritative body into the item cache ourselves.
+    const fresh = await getItem(apiFetch, id)
+    queryClient.setQueryData(memoryKeys.item(id), fresh)
     // The refetch landed — clear any prior partial marker.
     setItemPartial(queryClient, id, null)
     return true

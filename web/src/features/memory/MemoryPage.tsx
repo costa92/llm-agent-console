@@ -4,9 +4,11 @@ import { useOperatorContext } from '@/app/OperatorContextProvider'
 import { Button } from '@/components/ui/button'
 import { FiveStateWrapper } from '@/components/primitives/FiveStateWrapper'
 import { useRecallQuery } from '@/features/memory/api/queries'
+import { useState } from 'react'
 import { SearchControls } from './components/SearchControls'
 import { ResultsTable } from './components/ResultsTable'
 import { ItemDrawer } from './components/ItemDrawer'
+import { EditorDrawer } from './components/EditorDrawer'
 import { useMemorySearchParams } from './hooks/useMemorySearchParams'
 import type { NormalizedGatewayError } from '@/features/memory/api/client'
 
@@ -57,6 +59,9 @@ export function MemoryPage() {
  */
 function MemoryConsole() {
   const { query, top_k } = useMemorySearchParams()
+  // "New record" opens the EditorDrawer in write mode (local open state — the
+  // ?item URL param remains the ItemDrawer's source of truth).
+  const [writeOpen, setWriteOpen] = useState(false)
 
   // Recall is operator-initiated: useRecallQuery is enabled only on a non-empty
   // submitted query (02-01), so an empty query never fires a request.
@@ -81,10 +86,8 @@ function MemoryConsole() {
         <h1 className="text-[20px] font-semibold" style={{ color: 'var(--foreground)' }}>
           Memory
         </h1>
-        {/* Editor arrives in plan 02-04 — render the button as a disabled stub. */}
-        <Button disabled title="Memory editor arrives in plan 02-04">
-          New record
-        </Button>
+        {/* New record → EditorDrawer write mode (one editor, two modes; D-07/D-08). */}
+        <Button onClick={() => setWriteOpen(true)}>New record</Button>
       </header>
 
       <SearchControls onRefresh={() => void recall.refetch()} />
@@ -113,6 +116,17 @@ function MemoryConsole() {
           ?item is set (its own ?item-synced open state). It overlays the results
           rather than replacing them (D-04 — drawer, not a full route). */}
       <ItemDrawer />
+
+      {/* Editor drawer in WRITE mode (Slice C-1). Keyed on the open flag so it
+          remounts with a fresh blank template each time "New record" opens it. */}
+      {writeOpen && (
+        <EditorDrawer
+          key="write"
+          mode="write"
+          open={writeOpen}
+          onOpenChange={setWriteOpen}
+        />
+      )}
     </div>
   )
 }
