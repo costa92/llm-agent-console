@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Phase 2 (Memory Console) — 02-01 Wave 0 data layer complete (typed /api/memory client + zod schemas + test mocks; 52/52 tests, build/tsc/lint green)
-last_updated: "2026-06-03T08:54:04.059Z"
+stopped_at: Completed 02-03-PLAN.md (item detail drawer — Slice B)
+last_updated: "2026-06-03T09:02:06.505Z"
 last_activity: 2026-06-03
 progress:
   total_phases: 6
   completed_phases: 1
   total_plans: 10
-  completed_plans: 7
+  completed_plans: 8
   percent: 17
 ---
 
@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-06-02)
 ## Current Position
 
 Phase: 2 of 6 (Memory Console)
-Plan: 2 of 5 in current phase (Wave 0 data layer complete)
+Plan: 3 of 5 in current phase (Wave 0 data layer complete)
 Status: Ready to execute
 Last activity: 2026-06-03
 
-Progress: [███████░░░] 70%
+Progress: [████████░░] 80%
 
 ## Performance Metrics
 
@@ -58,6 +58,7 @@ Progress: [███████░░░] 70%
 | Phase 1 P5 | 3min | 2 tasks | 6 files |
 | Phase 02 P01 | 5min | 2 tasks | 6 files |
 | Phase 02 P02 | 18min | 2 tasks | 12 files |
+| Phase 02 P03 | 10min | 1 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -82,6 +83,9 @@ Recent decisions affecting current work:
 - [Phase ?]: 02-01: recall query key = ['recall',{query,top_k,consistency_level}] only — sort/page/state-filter stay client-side (D-03/D-13), never in the key; recall sends only documented fields (DisallowUnknownFields).
 - [Phase ?]: 02-02: Memory recall uses a CLIENT-SIDE @tanstack/react-table (sort/page/filter over fetched top-k); top_k is the only server re-query lever (D-03 forced by the gateway flat hits[] contract)
 - [Phase ?]: 02-02: D-12 gate is render-first in MemoryPage — the recall-firing subtree is never mounted while tenant/user unset, so no doomed request can fire (MEM-08/IC-7)
+- [Phase 02]: 02-03: ItemDrawer open state IS the ?item URL param (D-04/D-05) — reload reopens, browser-back closes, link shareable; close clears ?item without re-running recall (D-09)
+- [Phase 02]: 02-03: drawer has NO empty state — a 404 not_found maps to the FiveStateWrapper error state inside the drawer (IC-2: an id implies existence)
+- [Phase 02]: 02-03: shadcn sheet (not vaul drawer) added per RESEARCH A1; width overridden to fixed 480px; action-region (Patch/pin/disable/delete) shipped as disabled placeholders for plans 02-04/02-05
 
 ### Pending Todos
 
@@ -103,6 +107,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-06-03T08:53:39.832Z
-Stopped at: Phase 2 (Memory Console) — 02-01 Wave 0 data layer complete (typed /api/memory client + zod schemas + test mocks; 52/52 tests, build/tsc/lint green)
+Last session: 2026-06-03T09:02:06.497Z
+Stopped at: Completed 02-03-PLAN.md (item detail drawer — Slice B)
 Resume file: None

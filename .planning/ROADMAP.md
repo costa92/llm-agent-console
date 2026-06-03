@@ -85,7 +85,7 @@ Plans:
 
 **Wave 3** *(Slice B — blocked on 02-02)*
 
-- [ ] 02-03-PLAN.md — Item detail drawer: ?item-synced sheet, GET item, rendered fields + raw JSON viewer
+- [x] 02-03-PLAN.md — Item detail drawer: ?item-synced sheet, GET item, rendered fields + raw JSON viewer
 
 **Wave 4** *(Slice C-1 — blocked on 02-03)*
 
@@ -167,7 +167,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation | 5/5 | Complete   | 2026-06-03 |
-| 2. Memory Console | 2/5 | In Progress|  |
+| 2. Memory Console | 3/5 | In Progress|  |
 | 3. Flow Console | 0/TBD | Not started | - |
 | 4. Chat Console | 0/TBD | Not started | - |
 | 5. Health & Hardening | 0/TBD | Not started | - |

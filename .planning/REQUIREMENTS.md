@@ -30,7 +30,7 @@ hypotheses until shipped and validated.
 ### MEM — memory console
 
 - [x] **MEM-01**: Operator runs a **recall/search** (`POST /memory/recall/unified`) and sees ranked results with score and metadata; each result links to its item detail.
-- [ ] **MEM-02**: Operator opens a **memory item detail** (`GET /memory/items/{id}`) with rendered fields plus raw JSON.
+- [x] **MEM-02**: Operator opens a **memory item detail** (`GET /memory/items/{id}`) with rendered fields plus raw JSON.
 - [x] **MEM-03**: Operator **writes** a new memory record (`POST /memory/write`) via a validated JSON editor.
 - [x] **MEM-04**: Operator **patches** an existing memory item (`PATCH /memory/items/{id}`).
 - [ ] **MEM-05**: Operator **pins / unpins** a memory item (`POST .../pin|unpin`).
