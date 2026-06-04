@@ -1,7 +1,8 @@
 ---
 phase: 5
 slug: health-hardening
-status: draft
+status: approved
+reviewed_at: 2026-06-04
 shadcn_initialized: true
 preset: none
 inherits: .planning/phases/01-foundation/01-UI-SPEC.md
