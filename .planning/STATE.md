@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: completed
-stopped_at: Phase 5 context gathered
-last_updated: "2026-06-04T07:54:19.282Z"
-last_activity: 2026-06-04
+status: executing
+stopped_at: Phase 5 UI-SPEC approved
+last_updated: "2026-06-04T08:24:58.499Z"
+last_activity: 2026-06-04 -- Phase 5 planning complete
 progress:
   total_phases: 6
   completed_phases: 4
-  total_plans: 18
+  total_plans: 22
   completed_plans: 18
   percent: 67
 ---
@@ -27,8 +27,8 @@ See: .planning/PROJECT.md (updated 2026-06-02)
 
 Phase: 4 of 6 (Chat Console)
 Plan: 3 of 3 complete — Phase 4 (Chat Console) DONE. 04-03 Slice B landed: streamed Send is the default (live StepTrace + Streaming badge + collapse-on-done), the Stream|Sync toggle folds the sync one-shot into the same bubble, Stop keeps the partial + a muted "Stopped." chip with the connection Closed (never errored), an in-stream error renders in-bubble red "Failed —", and a transport drop shows the amber "Connection lost" badge — the D-05 three-signal distinction proven by tests. 264 tests green; build + tsc + lint pass.
-Status: Phase 4 complete — ready for Phase 5
-Last activity: 2026-06-04
+Status: Ready to execute
+Last activity: 2026-06-04 -- Phase 5 planning complete
 
 Progress: [██████████] 100%
 
@@ -138,6 +138,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-06-04T07:54:19.276Z
-Stopped at: Phase 5 context gathered
-Resume file: .planning/phases/05-health-hardening/05-CONTEXT.md
+Last session: 2026-06-04T07:59:29.322Z
+Stopped at: Phase 5 UI-SPEC approved
+Resume file: .planning/phases/05-health-hardening/05-UI-SPEC.md
