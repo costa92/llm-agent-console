@@ -155,7 +155,7 @@ Plans:
 
 **Wave 2** *(Slice A — sync chat + session; blocked on 04-01)*
 
-- [ ] 04-02-PLAN.md — ChatPage + SessionHeader (CopyableId + New session) + MessageBubble + Composer (sync Send) + real /chat route; sync reply into one bubble, session display/reuse, D-06 reset, 429 send-failure toast (CHAT-02, CHAT-03)
+- [x] 04-02-PLAN.md — ChatPage + SessionHeader (CopyableId + New session) + MessageBubble + Composer (sync Send) + real /chat route; sync reply into one bubble, session display/reuse, D-06 reset, 429 send-failure toast (CHAT-02, CHAT-03)
 
 **Wave 3** *(Slice B — streamed chat + step trace + Stop; blocked on 04-02)*
 
@@ -201,6 +201,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | 1. Foundation | 5/5 | Complete   | 2026-06-03 |
 | 2. Memory Console | 5/5 | Complete   | 2026-06-03 |
 | 3. Flow Console | 5/5 | Complete   | 2026-06-04 |
-| 4. Chat Console | 1/3 | In Progress|  |
+| 4. Chat Console | 2/3 | In Progress|  |
 | 5. Health & Hardening | 0/TBD | Not started | - |
 | 6. Deploy | 0/TBD | Not started | - |

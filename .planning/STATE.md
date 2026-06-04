@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: verifying
-stopped_at: Completed 04-01-PLAN.md (Wave-0 chat foundation)
-last_updated: "2026-06-04T06:50:27.246Z"
+status: executing
+stopped_at: Completed 04-02-PLAN.md (Slice A — sync chat + session header + real /chat route)
+last_updated: "2026-06-04T06:58:39.303Z"
 last_activity: 2026-06-04
 progress:
   total_phases: 6
   completed_phases: 3
   total_plans: 18
-  completed_plans: 16
+  completed_plans: 17
   percent: 50
 ---
 
@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-06-02)
 ## Current Position
 
 Phase: 4 of 6 (Chat Console)
-Plan: 1 of 3 in current phase (04-01 Wave-0 foundation complete — typed /api/chat client + loose zod schemas + chat goldens + pure turnsReducer + imperative useChatStream; 19 chat tests green, 247 total)
-Status: Executing (04-02 / 04-03 wire the ChatPage/composer/transcript UI onto this keystone)
+Plan: 2 of 3 complete in current phase (04-02 Slice A done — real ChatPage on /chat: SessionHeader+CopyableId, MessageBubble, Composer sync Send → one assistant bubble, session display/reuse, D-06 New-session reset, 429 send-failure toast; 253 tests green). 04-03 next (Slice B — streamed Send + step trace + Stop + Stream|Sync toggle).
+Status: Ready to execute (04-03)
 Last activity: 2026-06-04
 
-Progress: [█████████░] 89%
+Progress: [█████████░] 94%
 
 ## Performance Metrics
 
@@ -67,6 +67,7 @@ Progress: [█████████░] 89%
 | Phase 03 P04 | 7min | 2 tasks | 9 files |
 | Phase 03 P05 | 8min | 2 tasks | 9 files |
 | Phase 04 P01 | 6 | 3 tasks | 8 files |
+| Phase 04 P02 | 4min | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -111,6 +112,8 @@ Recent decisions affecting current work:
 - [Phase 04]: 04-01: turnsReducer reads step text from data.answer (not content); done/error terminal, else step; no de-dup/ordinals (chat has no replay)
 - [Phase 04]: 04-01: useChatStream marks openedRef on X-Session-Id arrival to split a live drop (->errored) from a non-2xx open (->send-failure); Stop dispatches conn terminal before abort so Stop->closed never errored (D-05/Pitfall 4)
 - [Phase 04]: 04-01: session_id reused via request BODY only (never a header); chat client sends Content-Type only (auth-none); connReducer imported cross-feature from features/flow/timeline (not copied)
+- [Phase ?]: 04-02: ChatPage owns a page-local 'sending' flag (set on Send, cleared in sendSync().finally) for the sync in-flight composer-disable
+- [Phase ?]: 04-02: send-failure → toast.error('Send failed — {status}: {error}.') read off the thrown ChatError + composer re-enables (error-channel split); in-turn agent errors stay in-bubble (04-03)
 
 ### Pending Todos
 
@@ -132,6 +135,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-06-04T06:50:27.239Z
-Stopped at: Completed 04-01-PLAN.md (Wave-0 chat foundation)
+Last session: 2026-06-04T06:58:33.683Z
+Stopped at: Completed 04-02-PLAN.md (Slice A — sync chat + session header + real /chat route)
 Resume file: None
