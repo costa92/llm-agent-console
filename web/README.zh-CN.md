@@ -2,20 +2,20 @@
 
 # React + TypeScript + Vite
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+本模板提供一个最小化的配置，让 React 在 Vite 中工作，带 HMR 和一些 ESLint 规则。
 
-Currently, two official plugins are available:
+目前有两个官方插件可用：
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) 使用 [Oxc](https://oxc.rs)
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) 使用 [SWC](https://swc.rs/)
 
 ## React Compiler
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+本模板未启用 React Compiler，因为它会影响开发与构建性能。要添加它，参见[这份文档](https://react.dev/learn/react-compiler/installation)。
 
-## Expanding the ESLint configuration
+## 扩展 ESLint 配置
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+如果你在开发一个生产应用，我们建议更新配置以启用类型感知的 lint 规则：
 
 ```js
 export default defineConfig([
@@ -45,7 +45,7 @@ export default defineConfig([
 ])
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+你也可以安装 [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) 和 [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) 以获得 React 专属的 lint 规则：
 
 ```js
 // eslint.config.js
