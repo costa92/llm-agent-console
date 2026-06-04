@@ -66,7 +66,9 @@ function sendSync(message: string) {
 
 beforeEach(() => {
   chatSyncMock.mockReset()
-  fake.openSseStream.mockClear()
+  // The fake emitter is module-level (built once in the hoisted factory); clear
+  // its accumulated calls between tests so per-test call counts are accurate.
+  vi.mocked(fake.openSseStream).mockClear()
 })
 
 describe('ChatPage — empty state (D-06)', () => {
@@ -151,7 +153,7 @@ describe('ChatPage — Stop (D-05 operator-critical)', () => {
 
     // Badge is Closed (neutral) — NOT "Connection lost".
     expect(screen.getByText('Closed')).toBeInTheDocument()
-    expect(screen.queryByText('Connection lost.')).not.toBeInTheDocument()
+    expect(screen.queryByText('Connection lost')).not.toBeInTheDocument()
     expect(screen.queryByText(/Failed —/)).not.toBeInTheDocument()
 
     // Composer re-enables.
@@ -176,7 +178,7 @@ describe('ChatPage — in-stream error frame (D-01 stop-on-error)', () => {
     expect(screen.getByText('Checking inventory…')).toBeInTheDocument()
     // Clean stream end → Closed, not "Connection lost".
     expect(screen.getByText('Closed')).toBeInTheDocument()
-    expect(screen.queryByText('Connection lost.')).not.toBeInTheDocument()
+    expect(screen.queryByText('Connection lost')).not.toBeInTheDocument()
   })
 })
 
@@ -188,7 +190,8 @@ describe('ChatPage — transport drop (D-05)', () => {
     fake.emit(goldenChatSuccess.slice(0, 2)) // partial, no terminal
     await fake.fail() // transport drop — onError + reject, NO terminal frame
 
-    expect(await screen.findByText('Connection lost.')).toBeInTheDocument()
+    // The reused Phase-3 ConnectionBadge renders the amber "Connection lost" label.
+    expect(await screen.findByText('Connection lost')).toBeInTheDocument()
     expect(
       screen.getByText('Connection dropped before the reply finished.'),
     ).toBeInTheDocument()
