@@ -15,7 +15,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Foundation** - Single-origin BFF (auth boundary + verified SSE pass-through) + SPA shell + cross-cutting primitives (completed 2026-06-03)
 - [x] **Phase 2: Memory Console** - REST-only memory recall/detail/lifecycle, proving auth injection + query cache before any SSE (completed 2026-06-03)
-- [ ] **Phase 3: Flow Console** - Flow CRUD + first SSE: live run timeline, run history, events/replay (keystone streaming phase)
+- [x] **Phase 3: Flow Console** - Flow CRUD + first SSE: live run timeline, run history, events/replay (keystone streaming phase) (completed 2026-06-04)
 - [ ] **Phase 4: Chat Console** - Streaming agent-step chat with session continuity, reusing the SSE infra
 - [ ] **Phase 5: Health & Hardening** - Always-visible per-service health + five-state/reconnect error hardening
 - [ ] **Phase 6: Deploy** - Compose service alongside the umbrella stack with streaming preserved end-to-end
@@ -129,7 +129,7 @@ Plans:
 
 **Wave 4** *(Slice C — blocked on 03-04)*
 
-- [ ] 03-05-PLAN.md — Run history table + deep-linkable run sub-route + instant-fill replay through the SAME reducer/renderer + empty-events state (FLOW-05, FLOW-06)
+- [x] 03-05-PLAN.md — Run history table + deep-linkable run sub-route + instant-fill replay through the SAME reducer/renderer + empty-events state (FLOW-05, FLOW-06)
 
 **UI hint**: yes
 **Research**: Flag for phase-specific research (`/gsd:plan-phase --research-phase`) — highest-risk phase: verify BFF SSE-flush hardening against the actual deploy proxy. Confirmed (no longer open): flowd/chat emit NO upstream heartbeats and the BFF is a pure pass-through that injects none — so the open item is verifying the nginx/LB `proxy_read_timeout` covers the longest silent step, with flowd `/replay` + client reconnect covering drops. Also confirm flowd honors resume via the separate `/replay` endpoint (not `Last-Event-ID`).
@@ -187,7 +187,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 |-------|----------------|--------|-----------|
 | 1. Foundation | 5/5 | Complete   | 2026-06-03 |
 | 2. Memory Console | 5/5 | Complete   | 2026-06-03 |
-| 3. Flow Console | 4/5 | In Progress|  |
+| 3. Flow Console | 5/5 | Complete   | 2026-06-04 |
 | 4. Chat Console | 0/TBD | Not started | - |
 | 5. Health & Hardening | 0/TBD | Not started | - |
 | 6. Deploy | 0/TBD | Not started | - |
