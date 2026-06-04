@@ -42,7 +42,7 @@ hypotheses until shipped and validated.
 
 - [x] **FLOW-01**: Operator sees a **list of flows** (`GET /flows`); a row opens flow detail.
 - [x] **FLOW-02**: Operator views and **edits a flow's JSON** (`GET/PUT /flows/{id}`), **creates** (`POST /flows`), and **deletes** (`DELETE`, with confirmation), using a JSON editor that validates well-formedness and round-trips on PUT.
-- [ ] **FLOW-03**: Operator **triggers a synchronous run** (`POST /flows/{id}/run`) and sees its outputs/result.
+- [x] **FLOW-03**: Operator **triggers a synchronous run** (`POST /flows/{id}/run`) and sees its outputs/result.
 - [x] **FLOW-04**: Operator **triggers a streamed run** (`POST /flows/{id}/run/stream`) and watches a **live append-only event timeline** (node started/finished, terminal done/error) with per-node status, auto-scroll that pauses on manual scroll, and a visible connection state (streaming / closed / errored).
 - [x] **FLOW-05**: Operator browses **run history** for a flow (`GET /flows/{id}/runs`) and opens a **run detail** (`GET /runs/{id}`) with status and timestamps.
 - [x] **FLOW-06**: Operator browses a completed run's **events** (`GET /runs/{id}/events`) and **replays** them (`POST /runs/{id}/replay`) in the same timeline renderer used for live runs.

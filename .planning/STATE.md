@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 03-02-PLAN.md (Flow CRUD Slice A)
-last_updated: "2026-06-04T03:16:28.897Z"
+stopped_at: Completed 03-04-PLAN.md (Live timeline UI / Slice B)
+last_updated: "2026-06-04T03:27:52.845Z"
 last_activity: 2026-06-04
 progress:
   total_phases: 6
   completed_phases: 2
   total_plans: 15
-  completed_plans: 13
-  percent: 33
+  completed_plans: 14
+  percent: 93
 ---
 
 # Project State
@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-06-02)
 ## Current Position
 
 Phase: 3 of 6 (Flow Console)
-Plan: 3 of 5 in current phase (03-01 Wave-0 foundation complete — typed /api/flow client + schemas + SSE test seam)
+Plan: 4 of 5 in current phase (03-01 Wave-0 foundation complete — typed /api/flow client + schemas + SSE test seam)
 Status: Ready to execute
 Last activity: 2026-06-04
 
-Progress: [█████████░] 87%
+Progress: [█████████░] 93%
 
 ## Performance Metrics
 
@@ -64,6 +64,7 @@ Progress: [█████████░] 87%
 | Phase 03 P01 | 16min | 3 tasks | 10 files |
 | Phase 03 P03 | 7min | 3 tasks | 6 files |
 | Phase 3 P02 | 9min | 3 tasks | 12 files |
+| Phase 03 P04 | 7min | 2 tasks | 9 files |
 
 ## Accumulated Context
 
@@ -102,6 +103,9 @@ Recent decisions affecting current work:
 - [Phase ?]: 03-03: retry() branches on a known runId — hydrate GET /events as history (de-dup idempotent) vs re-open runStream when never created; NEVER re-POSTs /run/stream for a created run (D-09/IC-6)
 - [Phase ?]: 03-02: flow detail is three full routes (/flows, /flows/new, /flows/flowId), not a search-param drawer (D-05)
 - [Phase ?]: 03-02: one route-hosted editor with two modes; edit seeds base64-DECODED flow IR, create seeds {id,nodes,edges}; PUT omits id + sends raw flow; flowd is authoritative validator
+- [Phase ?]: 03-04: live render components built here but mounted at the run sub-route in Plan 05; Definition tab hosts only RunTrigger + sync RunResultPanel (D-08)
+- [Phase ?]: 03-04: D-09 is color+location — red flow_err in-body (no Retry) vs amber Connection-lost header + Retry->onRetry wired to the hook's retry()=/events-hydrate (never a fresh /run/stream)
+- [Phase ?]: 03-04: streamed Run navigates to /flows/{id}/runs/{runId} via a built path string + one documented navigate cast (Plan 05 registers the typed route); run id is a local percent-encoded param only (T-03-12)
 
 ### Pending Todos
 
@@ -123,6 +127,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-06-04T03:16:28.889Z
+Last session: 2026-06-04T03:27:43.698Z
 Stopped at: Completed 03-02-PLAN.md (Flow CRUD Slice A)
 Resume file: None

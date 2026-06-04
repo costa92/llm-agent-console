@@ -125,7 +125,7 @@ Plans:
 
 **Wave 3** *(Slice B UI — blocked on 03-02 + 03-03)*
 
-- [ ] 03-04-PLAN.md — Live timeline UI: TimelineView + NodeStatusList + ConnectionBadge + RunTrigger (streamed + sync, one result surface) + auto-scroll-pause + D-09 distinction (FLOW-03, FLOW-04)
+- [x] 03-04-PLAN.md — Live timeline UI: TimelineView + NodeStatusList + ConnectionBadge + RunTrigger (streamed + sync, one result surface) + auto-scroll-pause + D-09 distinction (FLOW-03, FLOW-04)
 
 **Wave 4** *(Slice C — blocked on 03-04)*
 
@@ -187,7 +187,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 |-------|----------------|--------|-----------|
 | 1. Foundation | 5/5 | Complete   | 2026-06-03 |
 | 2. Memory Console | 5/5 | Complete   | 2026-06-03 |
-| 3. Flow Console | 3/5 | In Progress|  |
+| 3. Flow Console | 4/5 | In Progress|  |
 | 4. Chat Console | 0/TBD | Not started | - |
 | 5. Health & Hardening | 0/TBD | Not started | - |
 | 6. Deploy | 0/TBD | Not started | - |
