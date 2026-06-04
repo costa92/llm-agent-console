@@ -174,7 +174,21 @@ Plans:
   2. Each area enforces the UI-SPEC five-state contract (loading/empty/error/partial/ready), with stream views adding the SSE-specific disconnected/reconnecting state on top — no ambiguous blank screens.
   3. Stream views show connection status with manual retry, and the client applies reconnect backoff with a cap and closes on the terminal `done` event (no reconnect storms).
 
-**Plans**: TBD
+**Plans**: 4 plans (vertical slices: Slice A health [W1] + reconnect primitives [W1] → reconnect wiring [W2] → five-state audit + overlay [W3])
+
+Plans:
+**Wave 1** *(Slice A health + reconnect primitives — parallel, no file overlap; blocked on Phase 4)*
+
+- [ ] 05-01-PLAN.md — Slice A: BFF /api/health parallel-probe Go handler (leak-free DTO) + useServiceHealth poll lighting the live HealthDots (SHELL-02, D-01, D-02)
+- [ ] 05-02-PLAN.md — Reconnect primitives (TDD): additive `reconnecting` state on connection.ts + pure backoff.ts nextDelay scheduler (D-03)
+
+**Wave 2** *(Slice B reconnect wiring — blocked on 05-02)*
+
+- [ ] 05-03-PLAN.md — Auto-reconnect loop into useRunStream (flow hydrate+de-dup) + chat manual-retry-only refinement of D-03 + ConnectionBadge reconnecting arm (D-03)
+
+**Wave 3** *(Slice B finish — blocked on 05-03)*
+
+- [ ] 05-04-PLAN.md — Five-state audit (FlowsPage/RunDetailPage/ChatPage) + transient reconnecting overlay on the stream views (D-04)
 **UI hint**: yes
 
 ### Phase 6: Deploy
@@ -202,5 +216,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | 2. Memory Console | 5/5 | Complete   | 2026-06-03 |
 | 3. Flow Console | 5/5 | Complete   | 2026-06-04 |
 | 4. Chat Console | 3/3 | Complete   | 2026-06-04 |
-| 5. Health & Hardening | 0/TBD | Not started | - |
+| 5. Health & Hardening | 0/4 | Not started | - |
 | 6. Deploy | 0/TBD | Not started | - |
