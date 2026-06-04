@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import {
   createMemoryHistory,
@@ -17,6 +17,7 @@ import {
   flowDefinition,
   flowJsonBase64,
   flowdError400,
+  flowdError404,
   type FlowdMockRoute,
 } from '@/test/mocks/flowd'
 
@@ -164,7 +165,7 @@ describe('FlowEditor — edit mode (S3 / IC-2 base64 round-trip)', () => {
 
   it('a flowd 400 compile error surfaces verbatim in an error toast', async () => {
     const { toast } = await import('sonner')
-    const errorSpy = vi.spyOn(toast, 'error')
+    const errorSpy = vi.spyOn(toast, 'error').mockClear()
 
     renderDetailEdit([
       { method: 'GET', path: FLOW_PATH, body: flowRecordFixture },
@@ -176,13 +177,12 @@ describe('FlowEditor — edit mode (S3 / IC-2 base64 round-trip)', () => {
     fireEvent.click(saveBtn())
 
     await waitFor(() => {
-      expect(errorSpy).toHaveBeenCalled()
+      // "Save failed — 400: {verbatim flowd message}."
+      expect(errorSpy).toHaveBeenCalledWith(
+        'Save failed — 400: flow compile: node "upper": unknown type.',
+        expect.anything(),
+      )
     })
-    const msg = errorSpy.mock.calls[0][0] as string
-    // "Save failed — 400: {verbatim flowd message}."
-    expect(msg).toBe(
-      'Save failed — 400: flow compile: node "upper": unknown type.',
-    )
   })
 })
 
@@ -213,6 +213,76 @@ describe('FlowEditor — create mode (S3 / IC-2 POST→201→nav)', () => {
     await waitFor(() => {
       expect(router.state.location.pathname).toBe('/flows/new_flow')
     })
+  })
+})
+
+describe('DeleteFlowDialog — red confirm, 204=success, route back (Task 3 / IC-1)', () => {
+  afterEach(() => vi.unstubAllGlobals())
+
+  it('opens a RED "Delete flow?" confirm naming the flow + run history, Delete repeats the verb', async () => {
+    renderDetailEdit([
+      { method: 'GET', path: FLOW_PATH, body: flowRecordFixture },
+    ])
+    await screen.findByLabelText('flow json')
+
+    fireEvent.click(screen.getByRole('button', { name: /Delete flow/ }))
+
+    const dialog = await screen.findByRole('dialog')
+    expect(within(dialog).getByText('Delete flow?')).toBeInTheDocument()
+    // Body names the flow id + states run history + irreversibility.
+    expect(within(dialog).getByText(/echo_chain/)).toBeInTheDocument()
+    expect(within(dialog).getByText(/run history/)).toBeInTheDocument()
+    expect(within(dialog).getByText(/cannot\s+be\s+undone/)).toBeInTheDocument()
+    // The destructive (red) confirm repeats the verb "Delete".
+    const confirm = within(dialog).getByRole('button', { name: /^Delete$/ })
+    expect(confirm).toHaveAttribute('data-variant', 'destructive')
+    // Cancel is present (the default-focused low-risk action).
+    expect(within(dialog).getByRole('button', { name: 'Cancel' })).toBeInTheDocument()
+  })
+
+  it('204 → "Flow deleted." success toast + navigates back to /flows', async () => {
+    const { toast } = await import('sonner')
+    const successSpy = vi.spyOn(toast, 'success')
+
+    const { router } = renderDetailEdit([
+      { method: 'GET', path: FLOW_PATH, body: flowRecordFixture },
+      // No body → the harness returns a real empty-body 204 (DELETE no-parse path).
+      { method: 'DELETE', path: FLOW_PATH },
+    ])
+    await screen.findByLabelText('flow json')
+
+    fireEvent.click(screen.getByRole('button', { name: /Delete flow/ }))
+    const dialog = await screen.findByRole('dialog')
+    fireEvent.click(within(dialog).getByRole('button', { name: /^Delete$/ }))
+
+    await waitFor(() => {
+      expect(router.state.location.pathname).toBe('/flows')
+    })
+    expect(successSpy).toHaveBeenCalledWith('Flow deleted.')
+  })
+
+  it('a 404 delete failure surfaces verbatim and does NOT navigate', async () => {
+    const { toast } = await import('sonner')
+    const errorSpy = vi.spyOn(toast, 'error').mockClear()
+
+    const { router } = renderDetailEdit([
+      { method: 'GET', path: FLOW_PATH, body: flowRecordFixture },
+      { method: 'DELETE', path: FLOW_PATH, status: 404, body: flowdError404 },
+    ])
+    await screen.findByLabelText('flow json')
+
+    fireEvent.click(screen.getByRole('button', { name: /Delete flow/ }))
+    const dialog = await screen.findByRole('dialog')
+    fireEvent.click(within(dialog).getByRole('button', { name: /^Delete$/ }))
+
+    await waitFor(() => {
+      expect(errorSpy).toHaveBeenCalledWith(
+        'Delete failed — 404: flow "missing" not found.',
+        expect.anything(),
+      )
+    })
+    // Stayed on the detail route (no nav on failure).
+    expect(router.state.location.pathname).toBe(`/flows/${FLOW_ID}`)
   })
 })
 
