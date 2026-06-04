@@ -116,7 +116,7 @@ Plans:
 Plans:
 **Wave 1** *(foundation — typed /api/flow client + zod schemas + flat-error parser + REST/SSE test mocks; blocked on Phase 2)*
 
-- [ ] 03-01-PLAN.md — Typed /api/flow client + zod schemas (verified flowd contract, base64 round-trip, flat {error}) + REST fetch-mock + controllable fake SSE emitter (FLOW-01..06)
+- [x] 03-01-PLAN.md — Typed /api/flow client + zod schemas (verified flowd contract, base64 round-trip, flat {error}) + REST fetch-mock + controllable fake SSE emitter (FLOW-01..06)
 
 **Wave 2** *(Slice A CRUD + Slice B keystone units — parallel, no file overlap; blocked on 03-01)*
 
@@ -187,7 +187,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 |-------|----------------|--------|-----------|
 | 1. Foundation | 5/5 | Complete   | 2026-06-03 |
 | 2. Memory Console | 5/5 | Complete   | 2026-06-03 |
-| 3. Flow Console | 0/5 | Planned | - |
+| 3. Flow Console | 1/5 | In Progress|  |
 | 4. Chat Console | 0/TBD | Not started | - |
 | 5. Health & Hardening | 0/TBD | Not started | - |
 | 6. Deploy | 0/TBD | Not started | - |

@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Phase 3 UI-SPEC approved
-last_updated: "2026-06-04T02:34:18.250Z"
-last_activity: 2026-06-04 -- Phase 3 planning complete
+stopped_at: Completed 03-01-PLAN.md (Flow Console Wave-0 foundation)
+last_updated: "2026-06-04T02:50:10.563Z"
+last_activity: 2026-06-04
 progress:
   total_phases: 6
   completed_phases: 2
   total_plans: 15
-  completed_plans: 10
+  completed_plans: 11
   percent: 33
 ---
 
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-06-02)
 
 **Core value:** Turn the ecosystem's headless service APIs into one usable, observable operator surface — see and act on what the backends are doing from a single web UI.
-**Current focus:** Phase 2 — Memory Console
+**Current focus:** Phase 3 — Flow Console (keystone SSE phase)
 
 ## Current Position
 
-Phase: 2 of 6 (Memory Console)
-Plan: 5 of 5 in current phase (Slices A+B+C-1+C-2 complete — Phase 2 DONE)
-Status: Ready to execute
-Last activity: 2026-06-04 -- Phase 3 planning complete
+Phase: 3 of 6 (Flow Console)
+Plan: 1 of 5 in current phase (03-01 Wave-0 foundation complete — typed /api/flow client + schemas + SSE test seam)
+Status: Executing — Wave 0 done; slices 03-02..05 next
+Last activity: 2026-06-04
 
 Progress: [███░░░░░░░] 33% (2 of 6 phases)
 
@@ -61,6 +61,7 @@ Progress: [███░░░░░░░] 33% (2 of 6 phases)
 | Phase 02 P03 | 10min | 1 tasks | 4 files |
 | Phase 02 P04 | 12min | 2 tasks | 8 files |
 | Phase 02 P05 | 14min | 2 tasks | 6 files |
+| Phase 03 P01 | 16min | 3 tasks | 10 files |
 
 ## Accumulated Context
 
@@ -90,6 +91,10 @@ Recent decisions affecting current work:
 - [Phase 02]: 02-03: shadcn sheet (not vaul drawer) added per RESEARCH A1; width overridden to fixed 480px; action-region (Patch/pin/disable/delete) shipped as disabled placeholders for plans 02-04/02-05
 - [Phase ?]: 02-05: lifecycle flag toggles REFLECT-FROM-RESPONSE (setQueryData item + setQueriesData recall hit, no GET refetch); delete SPLICES the recall row + drops item cache; neither re-runs recall (D-09 hybrid)
 - [Phase ?]: 02-05: two confirm weights in one LifecycleActions — delete=RED shadcn dialog (pattern=dialog+destructive Button), disable=neutral, pin/unpin/enable=no confirm (D-10); pessimistic remove-after-200 (D-11); 409 reuses handle409Conflict
+- [Phase ?]: 03-01: flowd client sends NO bearer / NO X-Console-* (T-03-01) — plain fetch not apiFetch; BFF injects the flowd bearer
+- [Phase ?]: 03-01: FLAT flowdErrorSchema {error:string} + FlowdError(status,message); parseFlowdError falls back to statusText — NOT Phase-2 parseGatewayError
+- [Phase ?]: 03-01: decodeFlowJson (atob+TextDecoder) in one place (A1 decode-on-load); putFlow OMITS id (Pitfall 4); deleteFlow 204=success no body (Pitfall 5)
+- [Phase ?]: 03-01: openSseStream onOpen re-applies fetch-event-source content-type open validation AFTER onOpen (no swallow); onRunId fires once per stream (D-08); ssePayloadSchema .loose(), seq only on RunEvent
 
 ### Pending Todos
 
@@ -111,6 +116,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-06-04T02:05:20.396Z
-Stopped at: Phase 3 UI-SPEC approved
-Resume file: .planning/phases/03-flow-console/03-UI-SPEC.md
+Last session: 2026-06-04T02:49:27.143Z
+Stopped at: Completed 03-01-PLAN.md (Flow Console Wave-0 foundation)
+Resume file: .planning/phases/03-flow-console/03-02-PLAN.md
