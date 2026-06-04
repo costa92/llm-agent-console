@@ -5,6 +5,7 @@ import { useFlowQuery } from '@/features/flow/api/queries'
 import { FlowdError } from '@/features/flow/api/client'
 import { FlowEditor } from './components/FlowEditor'
 import { DeleteFlowDialog } from './components/DeleteFlowDialog'
+import { RunTrigger } from './components/RunTrigger'
 
 export type FlowDetailPageProps =
   | { mode: 'create' }
@@ -103,19 +104,12 @@ function FlowDetailEdit({ flowId }: { flowId: string }) {
                 name={rec.name}
               />
 
-              {/* Run-trigger placeholder slot — Slice B (03-04) fills it. */}
-              <section
-                aria-label="Run trigger"
-                className="rounded-md border border-dashed p-6 text-center"
-                style={{ borderColor: 'var(--border)' }}
-              >
-                <p
-                  className="text-sm"
-                  style={{ color: 'var(--muted-foreground)' }}
-                >
-                  Run trigger arrives in a later slice.
-                </p>
-              </section>
+              {/* Run trigger (Slice B / 03-04): the primary streamed "Run"
+                  navigates to the run sub-route on X-Run-ID (D-08); the
+                  secondary "Run (sync)" renders {outputs} into the shared
+                  RunResultPanel (D-04). The live TimelineView is NOT mounted
+                  here — it renders at the run sub-route (Plan 05). */}
+              <RunTrigger flowId={flowId} />
             </TabsContent>
 
             <TabsContent value="runs">
