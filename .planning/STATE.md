@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: executing
-stopped_at: Phase 4 UI-SPEC approved
-last_updated: "2026-06-04T04:41:51.446Z"
-last_activity: 2026-06-04 -- Phase 4 planning complete
+status: verifying
+stopped_at: Completed 04-01-PLAN.md (Wave-0 chat foundation)
+last_updated: "2026-06-04T06:50:27.246Z"
+last_activity: 2026-06-04
 progress:
   total_phases: 6
   completed_phases: 3
   total_plans: 18
-  completed_plans: 15
+  completed_plans: 16
   percent: 50
 ---
 
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-06-02)
 
 **Core value:** Turn the ecosystem's headless service APIs into one usable, observable operator surface — see and act on what the backends are doing from a single web UI.
-**Current focus:** Phase 3 — Flow Console (keystone SSE phase)
+**Current focus:** Phase 4 — Chat Console (third SSE consumer)
 
 ## Current Position
 
-Phase: 3 of 6 (Flow Console)
-Plan: 5 of 5 in current phase (03-01 Wave-0 foundation complete — typed /api/flow client + schemas + SSE test seam)
-Status: Ready to execute
-Last activity: 2026-06-04 -- Phase 4 planning complete
+Phase: 4 of 6 (Chat Console)
+Plan: 1 of 3 in current phase (04-01 Wave-0 foundation complete — typed /api/chat client + loose zod schemas + chat goldens + pure turnsReducer + imperative useChatStream; 19 chat tests green, 247 total)
+Status: Executing (04-02 / 04-03 wire the ChatPage/composer/transcript UI onto this keystone)
+Last activity: 2026-06-04
 
-Progress: [██████████] 100%
+Progress: [█████████░] 89%
 
 ## Performance Metrics
 
@@ -66,6 +66,7 @@ Progress: [██████████] 100%
 | Phase 3 P02 | 9min | 3 tasks | 12 files |
 | Phase 03 P04 | 7min | 2 tasks | 9 files |
 | Phase 03 P05 | 8min | 2 tasks | 9 files |
+| Phase 04 P01 | 6 | 3 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -107,6 +108,9 @@ Recent decisions affecting current work:
 - [Phase ?]: 03-04: live render components built here but mounted at the run sub-route in Plan 05; Definition tab hosts only RunTrigger + sync RunResultPanel (D-08)
 - [Phase ?]: 03-04: D-09 is color+location — red flow_err in-body (no Retry) vs amber Connection-lost header + Retry->onRetry wired to the hook's retry()=/events-hydrate (never a fresh /run/stream)
 - [Phase ?]: 03-04: streamed Run navigates to /flows/{id}/runs/{runId} via a built path string + one documented navigate cast (Plan 05 registers the typed route); run id is a local percent-encoded param only (T-03-12)
+- [Phase 04]: 04-01: turnsReducer reads step text from data.answer (not content); done/error terminal, else step; no de-dup/ordinals (chat has no replay)
+- [Phase 04]: 04-01: useChatStream marks openedRef on X-Session-Id arrival to split a live drop (->errored) from a non-2xx open (->send-failure); Stop dispatches conn terminal before abort so Stop->closed never errored (D-05/Pitfall 4)
+- [Phase 04]: 04-01: session_id reused via request BODY only (never a header); chat client sends Content-Type only (auth-none); connReducer imported cross-feature from features/flow/timeline (not copied)
 
 ### Pending Todos
 
@@ -128,6 +132,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-06-04T04:21:42.345Z
-Stopped at: Phase 4 UI-SPEC approved
-Resume file: .planning/phases/04-chat-console/04-UI-SPEC.md
+Last session: 2026-06-04T06:50:27.239Z
+Stopped at: Completed 04-01-PLAN.md (Wave-0 chat foundation)
+Resume file: None

@@ -49,9 +49,9 @@ hypotheses until shipped and validated.
 
 ### CHAT — chat console
 
-- [ ] **CHAT-01**: Operator sends a message and watches **streamed agent steps** (`POST /chat/stream`) render incrementally, with a streaming indicator and stop-on-error.
-- [ ] **CHAT-02**: Chat maintains **session continuity** (reuses the session id across turns).
-- [ ] **CHAT-03**: Operator can use a **sync fallback** (`POST /chat`) for one-shot messages, reusing the same message rendering.
+- [x] **CHAT-01**: Operator sends a message and watches **streamed agent steps** (`POST /chat/stream`) render incrementally, with a streaming indicator and stop-on-error.
+- [x] **CHAT-02**: Chat maintains **session continuity** (reuses the session id across turns).
+- [x] **CHAT-03**: Operator can use a **sync fallback** (`POST /chat`) for one-shot messages, reusing the same message rendering.
 
 ---
 

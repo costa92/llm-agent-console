@@ -151,7 +151,7 @@ Plans:
 Plans:
 **Wave 1** *(foundation — typed /api/chat client + zod schemas + chat goldens + turnsReducer + useChatStream, all unit-tested against the reused Phase-3 fake emitter; blocked on Phase 3)*
 
-- [ ] 04-01-PLAN.md — Typed /api/chat client + loose stream-envelope/flat-error schemas + chat golden frames + pure turnsReducer + imperative useChatStream (CHAT-01, CHAT-02, CHAT-03 logic)
+- [x] 04-01-PLAN.md — Typed /api/chat client + loose stream-envelope/flat-error schemas + chat golden frames + pure turnsReducer + imperative useChatStream (CHAT-01, CHAT-02, CHAT-03 logic)
 
 **Wave 2** *(Slice A — sync chat + session; blocked on 04-01)*
 
@@ -201,6 +201,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | 1. Foundation | 5/5 | Complete   | 2026-06-03 |
 | 2. Memory Console | 5/5 | Complete   | 2026-06-03 |
 | 3. Flow Console | 5/5 | Complete   | 2026-06-04 |
-| 4. Chat Console | 0/3 | Not started | - |
+| 4. Chat Console | 1/3 | In Progress|  |
 | 5. Health & Hardening | 0/TBD | Not started | - |
 | 6. Deploy | 0/TBD | Not started | - |
