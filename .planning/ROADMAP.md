@@ -111,7 +111,26 @@ Plans:
   4. Operator browses run history for a flow and opens a run detail with status and timestamps.
   5. Operator browses a completed run's events and replays them in the same timeline renderer used for live runs, with late-join events hydrated from `/events` then de-duped against the live stream.
 
-**Plans**: TBD
+**Plans**: 5 plans (vertical slices: Wave 0 foundation → Slice A CRUD → Slice B keystone units + UI → Slice C history+replay)
+
+Plans:
+**Wave 1** *(foundation — typed /api/flow client + zod schemas + flat-error parser + REST/SSE test mocks; blocked on Phase 2)*
+
+- [ ] 03-01-PLAN.md — Typed /api/flow client + zod schemas (verified flowd contract, base64 round-trip, flat {error}) + REST fetch-mock + controllable fake SSE emitter (FLOW-01..06)
+
+**Wave 2** *(Slice A CRUD + Slice B keystone units — parallel, no file overlap; blocked on 03-01)*
+
+- [ ] 03-02-PLAN.md — Flow CRUD: /flows list + /flows/{id} tabs + route-hosted JSON editor (base64 round-trip, create/edit) + red delete-confirm (FLOW-01, FLOW-02)
+- [ ] 03-03-PLAN.md — Keystone units (TDD): pure timelineReducer + (kind,node,ordinal) de-dup + connection-state machine + imperative useRunStream hook (FLOW-03, FLOW-04, FLOW-05, FLOW-06)
+
+**Wave 3** *(Slice B UI — blocked on 03-02 + 03-03)*
+
+- [ ] 03-04-PLAN.md — Live timeline UI: TimelineView + NodeStatusList + ConnectionBadge + RunTrigger (streamed + sync, one result surface) + auto-scroll-pause + D-09 distinction (FLOW-03, FLOW-04)
+
+**Wave 4** *(Slice C — blocked on 03-04)*
+
+- [ ] 03-05-PLAN.md — Run history table + deep-linkable run sub-route + instant-fill replay through the SAME reducer/renderer + empty-events state (FLOW-05, FLOW-06)
+
 **UI hint**: yes
 **Research**: Flag for phase-specific research (`/gsd:plan-phase --research-phase`) — highest-risk phase: verify BFF SSE-flush hardening against the actual deploy proxy. Confirmed (no longer open): flowd/chat emit NO upstream heartbeats and the BFF is a pure pass-through that injects none — so the open item is verifying the nginx/LB `proxy_read_timeout` covers the longest silent step, with flowd `/replay` + client reconnect covering drops. Also confirm flowd honors resume via the separate `/replay` endpoint (not `Last-Event-ID`).
 
@@ -168,7 +187,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 |-------|----------------|--------|-----------|
 | 1. Foundation | 5/5 | Complete   | 2026-06-03 |
 | 2. Memory Console | 5/5 | Complete   | 2026-06-03 |
-| 3. Flow Console | 0/TBD | Not started | - |
+| 3. Flow Console | 0/5 | Planned | - |
 | 4. Chat Console | 0/TBD | Not started | - |
 | 5. Health & Hardening | 0/TBD | Not started | - |
 | 6. Deploy | 0/TBD | Not started | - |
