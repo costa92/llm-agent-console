@@ -146,7 +146,20 @@ Plans:
   2. Chat maintains session continuity, reusing the session id across turns.
   3. Operator can use the synchronous `/chat` fallback for a one-shot message, reusing the same message rendering.
 
-**Plans**: TBD
+**Plans**: 3 plans (vertical slices: Wave 0 foundation → Slice A sync chat + session → Slice B streamed chat + step trace + Stop)
+
+Plans:
+**Wave 1** *(foundation — typed /api/chat client + zod schemas + chat goldens + turnsReducer + useChatStream, all unit-tested against the reused Phase-3 fake emitter; blocked on Phase 3)*
+
+- [ ] 04-01-PLAN.md — Typed /api/chat client + loose stream-envelope/flat-error schemas + chat golden frames + pure turnsReducer + imperative useChatStream (CHAT-01, CHAT-02, CHAT-03 logic)
+
+**Wave 2** *(Slice A — sync chat + session; blocked on 04-01)*
+
+- [ ] 04-02-PLAN.md — ChatPage + SessionHeader (CopyableId + New session) + MessageBubble + Composer (sync Send) + real /chat route; sync reply into one bubble, session display/reuse, D-06 reset, 429 send-failure toast (CHAT-02, CHAT-03)
+
+**Wave 3** *(Slice B — streamed chat + step trace + Stop; blocked on 04-02)*
+
+- [ ] 04-03-PLAN.md — Streamed default Send + StepTrace (collapsible live trace) + streaming indicator + Stream|Sync toggle + Stop (keeps partial, closed-not-errored) + in-bubble error + ConnectionBadge reuse + the D-05 three-signal distinction (CHAT-01, CHAT-03)
 **UI hint**: yes
 
 ### Phase 5: Health & Hardening
@@ -188,6 +201,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | 1. Foundation | 5/5 | Complete   | 2026-06-03 |
 | 2. Memory Console | 5/5 | Complete   | 2026-06-03 |
 | 3. Flow Console | 5/5 | Complete   | 2026-06-04 |
-| 4. Chat Console | 0/TBD | Not started | - |
+| 4. Chat Console | 0/3 | Not started | - |
 | 5. Health & Hardening | 0/TBD | Not started | - |
 | 6. Deploy | 0/TBD | Not started | - |
