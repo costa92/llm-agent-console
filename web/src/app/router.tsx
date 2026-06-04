@@ -1,7 +1,12 @@
 import { createRoute, redirect } from '@tanstack/react-router'
 import { rootRoute } from '@/app/routes/__root'
 import { memoryRoute } from '@/app/routes/memory'
-import { flowsRoute, flowNewRoute, flowDetailRoute } from '@/app/routes/flow'
+import {
+  flowsRoute,
+  flowNewRoute,
+  flowDetailRoute,
+  runDetailRoute,
+} from '@/app/routes/flow'
 import { chatRoute } from '@/app/routes/chat'
 
 /** Index route redirects to /memory so the shell always lands on a console. */
@@ -20,5 +25,6 @@ export const routeTree = rootRoute.addChildren([
   flowsRoute,
   flowNewRoute,
   flowDetailRoute,
+  runDetailRoute,
   chatRoute,
 ])

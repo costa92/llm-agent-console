@@ -69,15 +69,12 @@ export function RunTrigger({ flowId }: RunTriggerProps) {
       onRunId: (runId) => {
         // D-08: navigate to the deep-linkable run sub-route as soon as flowd
         // assigns the run id (X-Run-ID). The live TimelineView mounts there
-        // (Plan 05). The run id is a route PARAM only — encoded into the local
-        // path, never markup or an auth header (T-03-12).
-        //
-        // The `/flows/{id}/runs/{runId}` route is REGISTERED in Plan 05; until
-        // then it is not in the typed route tree, so we navigate to the built
-        // path string. The cast is the single seam where this plan reaches a
-        // route Plan 05 owns; it is removed once that route exists.
-        const to = `/flows/${encodeURIComponent(flowId)}/runs/${encodeURIComponent(runId)}`
-        void navigate({ to } as Parameters<typeof navigate>[0])
+        // (Plan 05's RunDetailPage). The run id is a route PARAM only — passed
+        // to the typed route, never markup or an auth header (T-03-12).
+        void navigate({
+          to: '/flows/$flowId/runs/$runId',
+          params: { flowId, runId },
+        })
       },
     })
   }
