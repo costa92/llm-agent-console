@@ -520,9 +520,11 @@ async function parseFlowdError(res: Response) {
 | A4 | The deploy-environment LB/proxy `proxy_read_timeout` covers the longest silent node step | Keystone risk / Pitfall 1 | **MEDIUM** — Phase-1 nginx sets 3600s, but the actual umbrella fronting proxy/LB is Phase-6/environment-specific (ROADMAP Phase-6 research flag). A short timeout silently drops idle streams. |
 | A5 | flowd listens on `:7861` and is reachable from the BFF at `cfg.FlowBase` | Architecture | Low — `:7861` per task context/PROJECT inventory; the BFF `FlowBase` is Phase-1 config. Verify the compose wiring. |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-1. **`FlowRecord.json` wire encoding (base64 vs inline).**
+> Disposition: Q1 + Q2 → routed to `03-VALIDATION.md` "Manual-Only Verifications" as acceptance gates (empirical/environment checks a unit test can't supply); Q3 → resolved inline (v1 raw-JSON editor, no client-side IR schema). None block planning.
+
+1. **`FlowRecord.json` wire encoding (base64 vs inline).** — RESOLVED → manual gate (A1).
    - What we know: `FlowRecord.JSON` is Go `[]byte` (store.go); Go's default JSON encoding base64-encodes `[]byte`; no custom MarshalJSON found.
    - What's unclear: whether a marshaler elsewhere overrides this (the SQLite store or a transport wrapper).
    - Recommendation: planner adds a one-line empirical check (`curl /api/flow/flows/<id> | jq .json`) before coding the editor decode; default to base64-decode per A1.
