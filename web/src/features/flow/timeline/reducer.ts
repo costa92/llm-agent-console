@@ -11,10 +11,13 @@ import type { SseKind, SsePayload } from '@/features/flow/api/schemas'
  *
  * THE de-dup constraint (Pitfall 2): SSE frames carry NO `seq`/`id`/`ts` — only
  * the `GET /events` JSON does. So logical identity = `(kind, node, ordinal)`,
- * where `ordinal` = the carried `seq` for history events, and the append
- * position WITHIN a `(kind, node)` group for live events. Because flowd persists
- * each event BEFORE forwarding it on the stream, history is always a clean
- * PREFIX of live — never reordered — so de-dup is a safe set membership check.
+ * where `ordinal` is the per-source Nth-occurrence index of `(kind, node)` —
+ * counted INDEPENDENTLY for live and history, each starting at 1. The carried
+ * `seq` is NOT the ordinal (it counts globally across kinds, so it would mix
+ * ordinal spaces and break the collision); `seq` only confirms history is a
+ * clean PREFIX of live. Because flowd persists each event BEFORE forwarding it,
+ * history never reorders, so the same logical event gets the same key across
+ * sources and de-dup is a safe set membership check.
  */
 
 /** Per-node lifecycle status derived from the node_* frames (+ flow_err). */

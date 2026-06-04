@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 03-02-PLAN.md (Flow CRUD Slice A)
-last_updated: "2026-06-04T03:41:46.610Z"
+stopped_at: Phase 3 (Flow Console) verified PARTIAL — 6/6 criteria, 6/6 reqs, 9/9 decisions all green in code+tests; 3 live-flowd gates (SSE-through-nginx incl. BFF-03 Part 2, deploy idle-timeout, base64 A1) carried forward (Docker unreachable in sandbox)
+last_updated: "2026-06-04T03:48:00.391Z"
 last_activity: 2026-06-04
 progress:
   total_phases: 6
@@ -128,6 +128,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-06-04T03:41:38.932Z
-Stopped at: Completed 03-02-PLAN.md (Flow CRUD Slice A)
-Resume file: None
+Last session: 2026-06-04T03:48:00.384Z
+Stopped at: Phase 3 (Flow Console) verified PARTIAL — 6/6 criteria, 6/6 reqs, 9/9 decisions all green in code+tests; 3 live-flowd gates (SSE-through-nginx incl. BFF-03 Part 2, deploy idle-timeout, base64 A1) carried forward (Docker unreachable in sandbox)
+Resume file: .planning/phases/03-flow-console/03-VERIFICATION.md
