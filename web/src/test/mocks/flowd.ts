@@ -26,10 +26,7 @@ export const flowDefinition = {
  * The base64 of `JSON.stringify(flowDefinition)` — what flowd actually puts on
  * the wire for `FlowRecord.json` (Go `[]byte` default JSON encoding).
  */
-export const flowJsonBase64 =
-  typeof btoa === 'function'
-    ? btoa(JSON.stringify(flowDefinition))
-    : Buffer.from(JSON.stringify(flowDefinition)).toString('base64')
+export const flowJsonBase64 = btoa(JSON.stringify(flowDefinition))
 
 // ── Canonical fixtures (golden wire shapes) ─────────────────────────────────
 
