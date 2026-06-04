@@ -4,14 +4,14 @@ milestone: v1.0
 milestone_name: milestone
 status: executing
 stopped_at: Completed 04-02-PLAN.md (Slice A — sync chat + session header + real /chat route)
-last_updated: "2026-06-04T06:58:39.303Z"
+last_updated: "2026-06-04T07:09:52.677Z"
 last_activity: 2026-06-04
 progress:
   total_phases: 6
-  completed_phases: 3
+  completed_phases: 4
   total_plans: 18
-  completed_plans: 17
-  percent: 50
+  completed_plans: 18
+  percent: 67
 ---
 
 # Project State
@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-06-02)
 ## Current Position
 
 Phase: 4 of 6 (Chat Console)
-Plan: 2 of 3 complete in current phase (04-02 Slice A done — real ChatPage on /chat: SessionHeader+CopyableId, MessageBubble, Composer sync Send → one assistant bubble, session display/reuse, D-06 New-session reset, 429 send-failure toast; 253 tests green). 04-03 next (Slice B — streamed Send + step trace + Stop + Stream|Sync toggle).
-Status: Ready to execute (04-03)
+Plan: 3 of 3 complete — Phase 4 (Chat Console) DONE. 04-03 Slice B landed: streamed Send is the default (live StepTrace + Streaming badge + collapse-on-done), the Stream|Sync toggle folds the sync one-shot into the same bubble, Stop keeps the partial + a muted "Stopped." chip with the connection Closed (never errored), an in-stream error renders in-bubble red "Failed —", and a transport drop shows the amber "Connection lost" badge — the D-05 three-signal distinction proven by tests. 264 tests green; build + tsc + lint pass.
+Status: Phase 4 complete — ready for Phase 5
 Last activity: 2026-06-04
 
-Progress: [█████████░] 94%
+Progress: [██████████] 100%
 
 ## Performance Metrics
 
@@ -68,6 +68,7 @@ Progress: [█████████░] 94%
 | Phase 03 P05 | 8min | 2 tasks | 9 files |
 | Phase 04 P01 | 6 | 3 tasks | 8 files |
 | Phase 04 P02 | 4min | 2 tasks | 6 files |
+| Phase 4 P3 | 6min | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -114,6 +115,8 @@ Recent decisions affecting current work:
 - [Phase 04]: 04-01: session_id reused via request BODY only (never a header); chat client sends Content-Type only (auth-none); connReducer imported cross-feature from features/flow/timeline (not copied)
 - [Phase ?]: 04-02: ChatPage owns a page-local 'sending' flag (set on Send, cleared in sendSync().finally) for the sync in-flight composer-disable
 - [Phase ?]: 04-02: send-failure → toast.error('Send failed — {status}: {error}.') read off the thrown ChatError + composer re-enables (error-channel split); in-turn agent errors stay in-bubble (04-03)
+- [Phase ?]: StepTrace renders only intermediate step rows (all neutral slate); terminal done/error are page treatments (answer / red 'Failed —'), per UI-SPEC Color (a)
+- [Phase ?]: D-05 three signals render as three distinct markers keyed off (status, conn): muted Stopped / red Failed / amber Connection lost — the 04-01 machine guarantees Stop->closed
 
 ### Pending Todos
 
@@ -135,6 +138,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-06-04T06:58:33.683Z
+Last session: 2026-06-04T07:09:32.723Z
 Stopped at: Completed 04-02-PLAN.md (Slice A — sync chat + session header + real /chat route)
 Resume file: None

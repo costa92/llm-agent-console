@@ -16,7 +16,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 1: Foundation** - Single-origin BFF (auth boundary + verified SSE pass-through) + SPA shell + cross-cutting primitives (completed 2026-06-03)
 - [x] **Phase 2: Memory Console** - REST-only memory recall/detail/lifecycle, proving auth injection + query cache before any SSE (completed 2026-06-03)
 - [x] **Phase 3: Flow Console** - Flow CRUD + first SSE: live run timeline, run history, events/replay (keystone streaming phase) (completed 2026-06-04)
-- [ ] **Phase 4: Chat Console** - Streaming agent-step chat with session continuity, reusing the SSE infra
+- [x] **Phase 4: Chat Console** - Streaming agent-step chat with session continuity, reusing the SSE infra (completed 2026-06-04)
 - [ ] **Phase 5: Health & Hardening** - Always-visible per-service health + five-state/reconnect error hardening
 - [ ] **Phase 6: Deploy** - Compose service alongside the umbrella stack with streaming preserved end-to-end
 
@@ -159,7 +159,7 @@ Plans:
 
 **Wave 3** *(Slice B — streamed chat + step trace + Stop; blocked on 04-02)*
 
-- [ ] 04-03-PLAN.md — Streamed default Send + StepTrace (collapsible live trace) + streaming indicator + Stream|Sync toggle + Stop (keeps partial, closed-not-errored) + in-bubble error + ConnectionBadge reuse + the D-05 three-signal distinction (CHAT-01, CHAT-03)
+- [x] 04-03-PLAN.md — Streamed default Send + StepTrace (collapsible live trace) + streaming indicator + Stream|Sync toggle + Stop (keeps partial, closed-not-errored) + in-bubble error + ConnectionBadge reuse + the D-05 three-signal distinction (CHAT-01, CHAT-03)
 **UI hint**: yes
 
 ### Phase 5: Health & Hardening
@@ -201,6 +201,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | 1. Foundation | 5/5 | Complete   | 2026-06-03 |
 | 2. Memory Console | 5/5 | Complete   | 2026-06-03 |
 | 3. Flow Console | 5/5 | Complete   | 2026-06-04 |
-| 4. Chat Console | 2/3 | In Progress|  |
+| 4. Chat Console | 3/3 | Complete   | 2026-06-04 |
 | 5. Health & Hardening | 0/TBD | Not started | - |
 | 6. Deploy | 0/TBD | Not started | - |
