@@ -14,7 +14,7 @@ type NavItem = {
 
 const ITEMS: NavItem[] = [
   { to: '/memory', label: 'Memory', icon: Database },
-  { to: '/flow', label: 'Flow', icon: Workflow },
+  { to: '/flows', label: 'Flow', icon: Workflow },
   { to: '/chat', label: 'Chat', icon: MessageSquare },
 ]
 
