@@ -6,6 +6,7 @@ import { FlowdError } from '@/features/flow/api/client'
 import { FlowEditor } from './components/FlowEditor'
 import { DeleteFlowDialog } from './components/DeleteFlowDialog'
 import { RunTrigger } from './components/RunTrigger'
+import { RunsHistory } from './components/RunsHistory'
 
 export type FlowDetailPageProps =
   | { mode: 'create' }
@@ -113,18 +114,12 @@ function FlowDetailEdit({ flowId }: { flowId: string }) {
             </TabsContent>
 
             <TabsContent value="runs">
-              {/* Run-history placeholder slot — Slice C (03-05) fills it. */}
-              <section
-                aria-label="Run history"
-                className="rounded-md border border-dashed p-6 text-center"
-                style={{ borderColor: 'var(--border)' }}
-              >
-                <p
-                  className="text-sm"
-                  style={{ color: 'var(--muted-foreground)' }}
-                >
-                  Run history arrives in a later slice.
-                </p>
+              {/* Run history (Slice C / 03-05 / D-07): a react-table over GET
+                  /flows/{id}/runs; rows deep-link to the run sub-route
+                  /flows/{id}/runs/{runId} (S8 — the single live+replay render
+                  location). */}
+              <section aria-label="Run history">
+                <RunsHistory flowId={flowId} />
               </section>
             </TabsContent>
           </Tabs>
