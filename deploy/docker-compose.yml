@@ -1,0 +1,38 @@
+# Two-service compose stack for the BFF-03 through-nginx proof (D-05/D-06).
+#
+# `bff`  — the Go BFF, built from the repo root Dockerfile, listening on :8090.
+# `nginx` — the fronting proxy: serves the SPA at / and reverse-proxies /api/*
+#           to bff:8090, applying the mandatory SSE hardening from nginx.conf.
+#
+# Bind-mount paths are relative to this file's directory (deploy/). The bff
+# service hostname `bff` matches `proxy_pass http://bff:8090` in nginx.conf.
+
+services:
+  bff:
+    build:
+      # Build context is the repo root (one level up from deploy/).
+      context: ..
+      dockerfile: Dockerfile
+    command: ["/app/console", "--config", "/app/config/config.dev.yaml"]
+    hostname: bff
+    expose:
+      - "8090"
+
+  nginx:
+    image: nginx:alpine
+    depends_on:
+      - bff
+    ports:
+      - "80:80"
+    volumes:
+      # nginx config (the SSE hardening lives here).
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      # Built SPA bundle (absent until the SPA plan ships; the SSE proof only
+      # exercises /api/stream/test + /healthz, not the SPA root).
+      - ../web/dist:/usr/share/nginx/html:ro
+    healthcheck:
+      # nginx is ready once it can proxy /healthz through to the BFF. nginx:alpine
+      # ships wget (not curl), so the check uses wget for portability.
+      test: ["CMD", "wget", "-qO-", "http://localhost/healthz"]
+      interval: 2s
+      retries: 10

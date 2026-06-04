@@ -12,46 +12,46 @@ hypotheses until shipped and validated.
 
 ### BFF — single-origin proxy + auth + streaming
 
-- [ ] **BFF-01**: Operator reaches all three backends through **one origin**; the BFF maps allowlisted routes to the memory-gateway, flowd, and chat upstreams (no open pass-through, no SSRF).
-- [ ] **BFF-02**: The BFF **injects each service's auth server-side**. Operator context arrives from the browser as `X-Console-Tenant`/`X-Console-User`/`X-Console-Project`/`X-Console-Session` headers and is **re-materialized server-side** into the gateway `X-Tenant-Id`/`X-User-Id` (and optional `X-Project-Id`/`X-Session-Id`); the flowd `Authorization: Bearer` comes from server config. The BFF **strips ALL inbound `X-*-Id` scope headers and the inbound `Authorization`** before re-materializing, and **never exposes the flowd token to the browser**. (The optional operator token the browser sends as `Authorization: Bearer` is authenticated and consumed at the app layer, not forwarded.)
-- [ ] **BFF-03**: The BFF **proxies SSE responses unbuffered** — flush per event, no gzip on `text/event-stream`, long/no read timeout, `X-Accel-Buffering: no` — verified end-to-end (a `POST` stream renders incrementally, not all-at-once, through a real fronting proxy).
-- [ ] **BFF-04**: The BFF **passes through upstream status codes and error bodies** so the UI can surface the actual backend error, not a generic message.
+- [x] **BFF-01**: Operator reaches all three backends through **one origin**; the BFF maps allowlisted routes to the memory-gateway, flowd, and chat upstreams (no open pass-through, no SSRF).
+- [x] **BFF-02**: The BFF **injects each service's auth server-side**. Operator context arrives from the browser as `X-Console-Tenant`/`X-Console-User`/`X-Console-Project`/`X-Console-Session` headers and is **re-materialized server-side** into the gateway `X-Tenant-Id`/`X-User-Id` (and optional `X-Project-Id`/`X-Session-Id`); the flowd `Authorization: Bearer` comes from server config. The BFF **strips ALL inbound `X-*-Id` scope headers and the inbound `Authorization`** before re-materializing, and **never exposes the flowd token to the browser**. (The optional operator token the browser sends as `Authorization: Bearer` is authenticated and consumed at the app layer, not forwarded.)
+- [x] **BFF-03**: The BFF **proxies SSE responses unbuffered** — flush per event, no gzip on `text/event-stream`, long/no read timeout, `X-Accel-Buffering: no` — verified end-to-end (a `POST` stream renders incrementally, not all-at-once, through a real fronting proxy).
+- [x] **BFF-04**: The BFF **passes through upstream status codes and error bodies** so the UI can surface the actual backend error, not a generic message.
 
 ### SHELL — app frame + cross-cutting legibility
 
-- [ ] **SHELL-01**: Operator navigates between the Memory, Flow, and Chat consoles from a persistent shell/nav.
+- [x] **SHELL-01**: Operator navigates between the Memory, Flow, and Chat consoles from a persistent shell/nav.
 - [ ] **SHELL-02**: Operator sees **always-visible per-service health** (up / down / degraded) for memory-gateway, flowd, and chat, polled on an interval, with a last-checked timestamp.
-- [ ] **SHELL-03**: Operator sets and sees the **active operator context** (tenant id, user id, optional project/session id), persisted across reloads and displayed in the shell at all times.
-- [ ] **SHELL-04**: The active **environment/endpoint** the BFF targets is displayed prominently in the shell.
-- [ ] **SHELL-05**: Every list/detail/stream view renders explicit **loading, empty, and error states** (no ambiguous blank screens).
-- [ ] **SHELL-06**: Operator gets **toast feedback** (success/failure, with the upstream message on failure) for every write/lifecycle/run action.
-- [ ] **SHELL-07**: Operator can view the **raw JSON** of any item/event/response in a collapsible, copy-to-clipboard viewer, and copy resource ids (memory/run/session) with one click.
+- [x] **SHELL-03**: Operator sets and sees the **active operator context** (tenant id, user id, optional project/session id), persisted across reloads and displayed in the shell at all times.
+- [x] **SHELL-04**: The active **environment/endpoint** the BFF targets is displayed prominently in the shell.
+- [x] **SHELL-05**: Every list/detail/stream view renders explicit **loading, empty, and error states** (no ambiguous blank screens).
+- [x] **SHELL-06**: Operator gets **toast feedback** (success/failure, with the upstream message on failure) for every write/lifecycle/run action.
+- [x] **SHELL-07**: Operator can view the **raw JSON** of any item/event/response in a collapsible, copy-to-clipboard viewer, and copy resource ids (memory/run/session) with one click.
 
 ### MEM — memory console
 
-- [ ] **MEM-01**: Operator runs a **recall/search** (`POST /memory/recall/unified`) and sees ranked results with score and metadata; each result links to its item detail.
-- [ ] **MEM-02**: Operator opens a **memory item detail** (`GET /memory/items/{id}`) with rendered fields plus raw JSON.
-- [ ] **MEM-03**: Operator **writes** a new memory record (`POST /memory/write`) via a validated JSON editor.
-- [ ] **MEM-04**: Operator **patches** an existing memory item (`PATCH /memory/items/{id}`).
-- [ ] **MEM-05**: Operator **pins / unpins** a memory item (`POST .../pin|unpin`).
-- [ ] **MEM-06**: Operator **disables / enables** a memory item (`POST .../disable|enable`).
-- [ ] **MEM-07**: Operator **deletes** a memory item (`DELETE /memory/items/{id}`); delete and disable require a **confirmation step** and use **pessimistic** UI (reflect state only after the backend confirms).
-- [ ] **MEM-08**: All memory actions are **gated behind operator context** (SHELL-03) — the console clearly indicates when tenant/user is unset and memory is therefore unavailable.
+- [x] **MEM-01**: Operator runs a **recall/search** (`POST /memory/recall/unified`) and sees ranked results with score and metadata; each result links to its item detail.
+- [x] **MEM-02**: Operator opens a **memory item detail** (`GET /memory/items/{id}`) with rendered fields plus raw JSON.
+- [x] **MEM-03**: Operator **writes** a new memory record (`POST /memory/write`) via a validated JSON editor.
+- [x] **MEM-04**: Operator **patches** an existing memory item (`PATCH /memory/items/{id}`).
+- [x] **MEM-05**: Operator **pins / unpins** a memory item (`POST .../pin|unpin`).
+- [x] **MEM-06**: Operator **disables / enables** a memory item (`POST .../disable|enable`).
+- [x] **MEM-07**: Operator **deletes** a memory item (`DELETE /memory/items/{id}`); delete and disable require a **confirmation step** and use **pessimistic** UI (reflect state only after the backend confirms).
+- [x] **MEM-08**: All memory actions are **gated behind operator context** (SHELL-03) — the console clearly indicates when tenant/user is unset and memory is therefore unavailable.
 
 ### FLOW — flow console
 
-- [ ] **FLOW-01**: Operator sees a **list of flows** (`GET /flows`); a row opens flow detail.
-- [ ] **FLOW-02**: Operator views and **edits a flow's JSON** (`GET/PUT /flows/{id}`), **creates** (`POST /flows`), and **deletes** (`DELETE`, with confirmation), using a JSON editor that validates well-formedness and round-trips on PUT.
-- [ ] **FLOW-03**: Operator **triggers a synchronous run** (`POST /flows/{id}/run`) and sees its outputs/result.
-- [ ] **FLOW-04**: Operator **triggers a streamed run** (`POST /flows/{id}/run/stream`) and watches a **live append-only event timeline** (node started/finished, terminal done/error) with per-node status, auto-scroll that pauses on manual scroll, and a visible connection state (streaming / closed / errored).
-- [ ] **FLOW-05**: Operator browses **run history** for a flow (`GET /flows/{id}/runs`) and opens a **run detail** (`GET /runs/{id}`) with status and timestamps.
-- [ ] **FLOW-06**: Operator browses a completed run's **events** (`GET /runs/{id}/events`) and **replays** them (`POST /runs/{id}/replay`) in the same timeline renderer used for live runs.
+- [x] **FLOW-01**: Operator sees a **list of flows** (`GET /flows`); a row opens flow detail.
+- [x] **FLOW-02**: Operator views and **edits a flow's JSON** (`GET/PUT /flows/{id}`), **creates** (`POST /flows`), and **deletes** (`DELETE`, with confirmation), using a JSON editor that validates well-formedness and round-trips on PUT.
+- [x] **FLOW-03**: Operator **triggers a synchronous run** (`POST /flows/{id}/run`) and sees its outputs/result.
+- [x] **FLOW-04**: Operator **triggers a streamed run** (`POST /flows/{id}/run/stream`) and watches a **live append-only event timeline** (node started/finished, terminal done/error) with per-node status, auto-scroll that pauses on manual scroll, and a visible connection state (streaming / closed / errored).
+- [x] **FLOW-05**: Operator browses **run history** for a flow (`GET /flows/{id}/runs`) and opens a **run detail** (`GET /runs/{id}`) with status and timestamps.
+- [x] **FLOW-06**: Operator browses a completed run's **events** (`GET /runs/{id}/events`) and **replays** them (`POST /runs/{id}/replay`) in the same timeline renderer used for live runs.
 
 ### CHAT — chat console
 
-- [ ] **CHAT-01**: Operator sends a message and watches **streamed agent steps** (`POST /chat/stream`) render incrementally, with a streaming indicator and stop-on-error.
-- [ ] **CHAT-02**: Chat maintains **session continuity** (reuses the session id across turns).
-- [ ] **CHAT-03**: Operator can use a **sync fallback** (`POST /chat`) for one-shot messages, reusing the same message rendering.
+- [x] **CHAT-01**: Operator sends a message and watches **streamed agent steps** (`POST /chat/stream`) render incrementally, with a streaming indicator and stop-on-error.
+- [x] **CHAT-02**: Chat maintains **session continuity** (reuses the session id across turns).
+- [x] **CHAT-03**: Operator can use a **sync fallback** (`POST /chat`) for one-shot messages, reusing the same message rendering.
 
 ---
 
