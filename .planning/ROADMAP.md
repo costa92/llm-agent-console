@@ -121,7 +121,7 @@ Plans:
 **Wave 2** *(Slice A CRUD + Slice B keystone units — parallel, no file overlap; blocked on 03-01)*
 
 - [ ] 03-02-PLAN.md — Flow CRUD: /flows list + /flows/{id} tabs + route-hosted JSON editor (base64 round-trip, create/edit) + red delete-confirm (FLOW-01, FLOW-02)
-- [ ] 03-03-PLAN.md — Keystone units (TDD): pure timelineReducer + (kind,node,ordinal) de-dup + connection-state machine + imperative useRunStream hook (FLOW-03, FLOW-04, FLOW-05, FLOW-06)
+- [x] 03-03-PLAN.md — Keystone units (TDD): pure timelineReducer + (kind,node,ordinal) de-dup + connection-state machine + imperative useRunStream hook (FLOW-03, FLOW-04, FLOW-05, FLOW-06)
 
 **Wave 3** *(Slice B UI — blocked on 03-02 + 03-03)*
 
@@ -187,7 +187,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 |-------|----------------|--------|-----------|
 | 1. Foundation | 5/5 | Complete   | 2026-06-03 |
 | 2. Memory Console | 5/5 | Complete   | 2026-06-03 |
-| 3. Flow Console | 1/5 | In Progress|  |
+| 3. Flow Console | 2/5 | In Progress|  |
 | 4. Chat Console | 0/TBD | Not started | - |
 | 5. Health & Hardening | 0/TBD | Not started | - |
 | 6. Deploy | 0/TBD | Not started | - |

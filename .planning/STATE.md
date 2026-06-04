@@ -4,13 +4,13 @@ milestone: v1.0
 milestone_name: milestone
 status: executing
 stopped_at: Completed 03-01-PLAN.md (Flow Console Wave-0 foundation)
-last_updated: "2026-06-04T02:50:10.563Z"
+last_updated: "2026-06-04T03:02:03.154Z"
 last_activity: 2026-06-04
 progress:
   total_phases: 6
   completed_phases: 2
   total_plans: 15
-  completed_plans: 11
+  completed_plans: 12
   percent: 33
 ---
 
@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-06-02)
 ## Current Position
 
 Phase: 3 of 6 (Flow Console)
-Plan: 1 of 5 in current phase (03-01 Wave-0 foundation complete — typed /api/flow client + schemas + SSE test seam)
-Status: Executing — Wave 0 done; slices 03-02..05 next
+Plan: 2 of 5 in current phase (03-01 Wave-0 foundation complete — typed /api/flow client + schemas + SSE test seam)
+Status: Ready to execute
 Last activity: 2026-06-04
 
-Progress: [███░░░░░░░] 33% (2 of 6 phases)
+Progress: [████████░░] 80%
 
 ## Performance Metrics
 
@@ -62,6 +62,7 @@ Progress: [███░░░░░░░] 33% (2 of 6 phases)
 | Phase 02 P04 | 12min | 2 tasks | 8 files |
 | Phase 02 P05 | 14min | 2 tasks | 6 files |
 | Phase 03 P01 | 16min | 3 tasks | 10 files |
+| Phase 03 P03 | 7min | 3 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -95,6 +96,9 @@ Recent decisions affecting current work:
 - [Phase ?]: 03-01: FLAT flowdErrorSchema {error:string} + FlowdError(status,message); parseFlowdError falls back to statusText — NOT Phase-2 parseGatewayError
 - [Phase ?]: 03-01: decodeFlowJson (atob+TextDecoder) in one place (A1 decode-on-load); putFlow OMITS id (Pitfall 4); deleteFlow 204=success no body (Pitfall 5)
 - [Phase ?]: 03-01: openSseStream onOpen re-applies fetch-event-source content-type open validation AFTER onOpen (no swallow); onRunId fires once per stream (D-08); ssePayloadSchema .loose(), seq only on RunEvent
+- [Phase ?]: 03-03: de-dup ordinal = per-SOURCE (kind,node) occurrence index (live & history each from 1), NOT RunEvent seq — makes history+live overlap collide to one event and replay==live
+- [Phase ?]: 03-03: connection state is transport-only (any terminal frame→closed); run success/failure is the timeline terminal, not the connection — keeps the typed union minimal and Phase-5 reconnect additive (D-02)
+- [Phase ?]: 03-03: retry() branches on a known runId — hydrate GET /events as history (de-dup idempotent) vs re-open runStream when never created; NEVER re-POSTs /run/stream for a created run (D-09/IC-6)
 
 ### Pending Todos
 
@@ -116,6 +120,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-06-04T02:49:27.143Z
-Stopped at: Completed 03-01-PLAN.md (Flow Console Wave-0 foundation)
-Resume file: .planning/phases/03-flow-console/03-02-PLAN.md
+Last session: 2026-06-04T03:01:50.730Z
+Stopped at: Completed 03-03-PLAN.md (keystone timeline units — reducer + de-dup + connection machine + useRunStream)
+Resume file: None
