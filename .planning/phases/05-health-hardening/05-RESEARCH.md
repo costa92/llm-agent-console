@@ -508,9 +508,11 @@ func TestHealthAggregate(t *testing.T) {
 | A4 | chat base URL is `:8081` | Verified Endpoints table | LOW — from `config.go` comment "ChatBase (D-03: :8081)"; the actual value is whatever the YAML config sets. The handler reads `cfg.ChatBase` regardless. |
 | A5 | A DTO keyed by service name (map) over an array | Pattern 1 | LOW — cosmetic; either works. Lock one in the plan. |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-1. **Chat re-open re-emits steps (no de-dup) — accept or gate?**
+> Disposition: both resolved in the plans. OQ#1 → RESOLVED (Plan 05-03): chat is **manual-retry-only** on a transport drop (flow auto-reconnects with /events de-dup; chat avoids duplicating the answer) — documented as a deliberate D-03 refinement. OQ#2 → RESOLVED (Plan 05-01): a single ~1s degraded threshold with memory's `/metrics` latency documented as the noisier signal.
+
+1. **Chat re-open re-emits steps (no de-dup) — accept or gate?** — RESOLVED (Plan 05-03): gate chat to manual-retry-only; flow keeps auto-reconnect.
    - What we know: chat has no `seq`/ordinals (Phase-4 contract); a reconnect re-opens and may duplicate steps in the trace.
    - What's unclear: whether the planner accepts visible duplication or gates chat auto-reconnect (e.g. only manual Retry for chat, auto for flow).
    - Recommendation: accept per Phase-4 D-05 (the trace is informational); if duplication looks bad, gate chat to manual-Retry-only and keep auto-reconnect for flow (which de-dups). Decide in the plan.
