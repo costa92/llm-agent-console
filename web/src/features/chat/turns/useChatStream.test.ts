@@ -1,6 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { renderHook, act, waitFor } from '@testing-library/react'
-import { makeFakeSseStream } from '@/test/mocks/fetch-event-source'
 import {
   goldenChatSuccess,
   goldenChatError,
@@ -21,7 +20,13 @@ import {
  * clears + resets the id, and the sync one-bubble fold (CHAT-03).
  */
 
-const fake = makeFakeSseStream()
+// `vi.mock` is hoisted above module init, so build the fake inside `vi.hoisted`
+// with a dynamic import (the only way to reference the mock module from a
+// hoisted factory — a top-level import is not yet initialized at hoist time).
+const fake = await vi.hoisted(async () => {
+  const { makeFakeSseStream } = await import('@/test/mocks/fetch-event-source')
+  return makeFakeSseStream()
+})
 vi.mock('@/lib/sse', () => ({ openSseStream: fake.openSseStream }))
 
 const chatSyncMock = vi.fn()
@@ -40,8 +45,7 @@ function lastAssistant(turns: ReturnType<typeof useChatStream>['turns']) {
 }
 
 beforeEach(() => {
-  fake.openSseStream.mock.calls.length &&
-    fake.openSseStream.mock.calls.splice(0)
+  fake.openSseStream.mock.calls.splice(0)
   chatSyncMock.mockReset()
 })
 
