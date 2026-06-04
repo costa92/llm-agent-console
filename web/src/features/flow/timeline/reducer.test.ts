@@ -168,12 +168,24 @@ describe('timelineReducer — (kind,node,ordinal) de-dup (THE keystone)', () => 
     expect(merged.outputs).toEqual({ out: 'OLLEH' })
   })
 
-  it('de-dups a live frame that exactly repeats an earlier live frame at the same ordinal', () => {
-    // Re-dispatching the identical golden success twice must be idempotent — the
-    // second pass repeats (kind,node,ordinal) keys already seen.
-    const once = reduceLive(goldenSuccess)
-    const twice = reduceLive(goldenSuccess, once)
-    expect(twice.events).toEqual(once.events)
+  it('is idempotent when /events history re-hydrates a prefix already played live (D-09)', () => {
+    // The real D-09 / IC-6 retry scenario: a live stream already rendered the
+    // prefix [flow_started, node_started, node_finished]; the transport drops;
+    // retry() hydrates GET /events (the SAME prefix as history) — nothing must
+    // double, and the run continues to flow_done.
+    const live = reduceLive(goldenSuccess.slice(0, 3)) // 3 live frames rendered
+    expect(live.events).toHaveLength(3)
+
+    const historyPrefix = lateJoinHistory // seq 1..3 = the same prefix
+    const afterHydrate = reduceHistory(historyPrefix, live)
+
+    // The history re-send of the already-seen prefix de-dups: still 3 events.
+    expect(afterHydrate.events).toHaveLength(3)
+    expect(afterHydrate.events.map((e) => e.kind)).toEqual([
+      'flow_started',
+      'node_started',
+      'node_finished',
+    ])
   })
 })
 
