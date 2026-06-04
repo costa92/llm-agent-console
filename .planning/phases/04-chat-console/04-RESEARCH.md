@@ -562,9 +562,11 @@ await fake.close()                                          // clean terminal �
 
 **Note:** every wire-contract, session, auth, error-status, and reuse claim in this document is tagged `[VERIFIED: <file:line>]` from directly-read source — not training knowledge. The Assumptions Log is near-empty because the contract was read, not assumed.
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-1. **Should `connection.ts` move out of the `flow/` namespace?**
+> Disposition: both are logic-neutral with planner-chosen answers already baked into the plans (connection.ts imported cross-feature from `features/flow/timeline/`; bare-`done`-no-answer copy chosen). Neither blocks planning.
+
+1. **Should `connection.ts` move out of the `flow/` namespace?** — RESOLVED → planner kept the cross-feature import (surgical scope).
    - What we know: it is fully generic and now used by two features (flow, chat).
    - What's unclear: whether the planner prefers a cross-feature import from `features/flow/timeline/connection.ts` or a relocation to `web/src/lib/connection.ts`.
    - Recommendation: either is fine and logic-neutral. Relocating to `lib/` reads cleaner for a shared primitive, but it's a pure file-move + import-update touching the existing flow code — keep it minimal and out of scope if the planner wants a surgical phase; import cross-feature otherwise.
