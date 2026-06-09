@@ -180,7 +180,7 @@ Plans:
 **Wave 1** *(Slice A health + reconnect primitives — parallel, no file overlap; blocked on Phase 4)*
 
 - [x] 05-01-PLAN.md — Slice A: BFF /api/health parallel-probe Go handler (leak-free DTO) + useServiceHealth poll lighting the live HealthDots (SHELL-02, D-01, D-02)
-- [ ] 05-02-PLAN.md — Reconnect primitives (TDD): additive `reconnecting` state on connection.ts + pure backoff.ts nextDelay scheduler (D-03)
+- [x] 05-02-PLAN.md — Reconnect primitives (TDD): additive `reconnecting` state on connection.ts + pure backoff.ts nextDelay scheduler (D-03)
 
 **Wave 2** *(Slice B reconnect wiring — blocked on 05-02)*
 
@@ -216,5 +216,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | 2. Memory Console | 5/5 | Complete   | 2026-06-03 |
 | 3. Flow Console | 5/5 | Complete   | 2026-06-04 |
 | 4. Chat Console | 3/3 | Complete   | 2026-06-04 |
-| 5. Health & Hardening | 1/4 | In Progress|  |
+| 5. Health & Hardening | 2/4 | In Progress|  |
 | 6. Deploy | 0/TBD | Not started | - |
