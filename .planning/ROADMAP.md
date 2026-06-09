@@ -18,7 +18,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 3: Flow Console** - Flow CRUD + first SSE: live run timeline, run history, events/replay (keystone streaming phase) (completed 2026-06-04)
 - [x] **Phase 4: Chat Console** - Streaming agent-step chat with session continuity, reusing the SSE infra (completed 2026-06-04)
 - [x] **Phase 5: Health & Hardening** - Always-visible per-service health + five-state/reconnect error hardening (completed 2026-06-09)
-- [ ] **Phase 6: Deploy** - Compose service alongside the umbrella stack with streaming preserved end-to-end
+- [x] **Phase 6: Deploy** - Compose service alongside the umbrella stack with streaming preserved end-to-end (completed 2026-06-09)
 
 ## Phase Details
 
@@ -229,4 +229,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | 3. Flow Console | 5/5 | Complete   | 2026-06-04 |
 | 4. Chat Console | 3/3 | Complete   | 2026-06-04 |
 | 5. Health & Hardening | 4/4 | Complete   | 2026-06-09 |
-| 6. Deploy | 3/3 | PENDING-OPERATOR (human-confirm: make proof + browser smoke test) | 2026-06-09 (doc) |
+| 6. Deploy | 3/3 | Complete   | 2026-06-09 |

@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: human_needed
-stopped_at: Phase 06 Plan 03 doc task complete — deploy/DEPLOY.md written (SC-3); human-confirm checkpoint PENDING-OPERATOR (make proof + browser smoke test)
-last_updated: "2026-06-09T10:00:00.000Z"
+status: milestone_complete
+stopped_at: Phase 6 verified PASS (live deploy + make proof all 3 legs green; nginx IPv6 healthcheck bug found+fixed); milestone v1.0 complete (6/6 phases)
+last_updated: "2026-06-09T09:49:23.919Z"
 last_activity: 2026-06-09
 progress:
   total_phases: 6
-  completed_phases: 5
+  completed_phases: 6
   total_plans: 25
-  completed_plans: 24
-  percent: 96
+  completed_plans: 25
+  percent: 100
 ---
 
 # Project State
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-06-02)
 
 **Core value:** Turn the ecosystem's headless service APIs into one usable, observable operator surface — see and act on what the backends are doing from a single web UI.
-**Current focus:** Phase 06 — deploy
+**Current focus:** Milestone v1.0 COMPLETE — all 6 phases shipped & verified
 
 ## Current Position
 
-Phase: 06 (deploy) — AWAITING OPERATOR VERIFICATION
-Plan: 3 of 3 (all doc tasks complete)
-Status: human_needed — deploy/DEPLOY.md written; operator must run make proof + browser smoke test
+Phase: 06 (deploy) — VERIFIED PASS (live)
+Plan: 3 of 3 complete; phase verified end-to-end on a running stack
+Status: milestone_complete (6/6 phases)
 Last activity: 2026-06-09
 
-Progress: [██████████] 96%
+Progress: [██████████] 100%
 
 ## Verification Status (Phase 5)
 
