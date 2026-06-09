@@ -9,3 +9,4 @@
 
 # Local secret overrides (the committed sample is config/config.dev.yaml)
 /config/config.local.yaml
+/config/config.prod.yaml

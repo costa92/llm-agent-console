@@ -17,6 +17,11 @@ services:
     hostname: bff
     expose:
       - "8090"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8090/healthz"]
+      interval: 5s
+      retries: 6
 
   nginx:
     image: nginx:alpine
@@ -24,6 +29,7 @@ services:
       - bff
     ports:
       - "80:80"
+    restart: unless-stopped
     volumes:
       # nginx config (the SSE hardening lives here).
       - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
