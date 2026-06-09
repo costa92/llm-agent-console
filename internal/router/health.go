@@ -14,6 +14,7 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
+	"strings"
 	"sync"
 	"time"
 
@@ -56,7 +57,12 @@ func healthAggregateHandler(cfg *config.Config) http.HandlerFunc {
 			// memory-gateway has no /healthz — use GET /metrics (status only,
 			// body discarded). HEAD would 405 under Go 1.22+ method-specific
 			// ServeMux. (RESEARCH §Verified Upstream Health Endpoints)
-			{"memory", cfg.MemoryBase + "/metrics"},
+			//
+			// memory_base carries the gateway's /memory API mount, but the
+			// gateway exposes /metrics at the server ROOT — not under /memory.
+			// Strip the /memory suffix before appending /metrics, otherwise the
+			// probe hits /memory/metrics and 404s (memory always "down").
+			{"memory", strings.TrimSuffix(cfg.MemoryBase, "/memory") + "/metrics"},
 		}
 
 		results := make(map[string]serviceHealth, len(probes))
