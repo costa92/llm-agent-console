@@ -229,4 +229,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | 3. Flow Console | 5/5 | Complete   | 2026-06-04 |
 | 4. Chat Console | 3/3 | Complete   | 2026-06-04 |
 | 5. Health & Hardening | 4/4 | Complete   | 2026-06-09 |
-| 6. Deploy | 0/3 | Not started | - |
+| 6. Deploy | 0/3 | Planned    |  |

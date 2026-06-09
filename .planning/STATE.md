@@ -2,9 +2,9 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: human_needed
-stopped_at: Phase 5 verified (PASS-WITH-CARRYFORWARD) — awaiting live-service human UAT before Phase 6
-last_updated: "2026-06-09T16:28:00.000Z"
+status: planning
+stopped_at: Phase 5 verification complete — PASS-WITH-CARRYFORWARD; ready for Phase 6 planning or live UAT
+last_updated: "2026-06-09T08:58:10.809Z"
 last_activity: 2026-06-09
 progress:
   total_phases: 6
@@ -27,7 +27,7 @@ See: .planning/PROJECT.md (updated 2026-06-02)
 
 Phase: 05 (health-hardening) — VERIFIED (PASS-WITH-CARRYFORWARD)
 Plan: 4 of 4
-Status: All 4 plans executed; verification PASS — 308/308 TS tests, Go suite green, typecheck + build clean. Two live-service manual tests carried forward to Phase 6 deploy scope.
+Status: planning_complete
 Last activity: 2026-06-09
 
 Progress: [██████████] 100%
@@ -35,6 +35,7 @@ Progress: [██████████] 100%
 ## Verification Status (Phase 5)
 
 **Automated gate results (2026-06-09):**
+
 - `GOWORK=off go test ./...` — PASS
 - `GOWORK=off go test ./internal/router/ -run Health -count=1` — PASS (3/3 subtests)
 - `cd web && npm run test` — PASS (308/308 tests, 38 files)
@@ -43,6 +44,7 @@ Progress: [██████████] 100%
 - `cd web && npm run build` — PASS (726kB, 0 errors)
 
 **Carried forward to Phase 6 (live-service legs, per 05-VALIDATION.md Manual-Only):**
+
 1. Live health dots reflect real service state (requires compose stack up)
 2. Live stream transport drop → reconnect → resume with no duplicate events (requires live flowd + nginx drop)
 
