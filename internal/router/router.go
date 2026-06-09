@@ -43,6 +43,11 @@ func New(cfg *config.Config) http.Handler {
 	// SHELL-04: active environment/endpoint indicator (read-only, no secrets).
 	mux.HandleFunc("GET /api/config/env", configEnvHandler(cfg))
 
+	// SHELL-02: aggregate health probe — server-side parallel probes of the three
+	// upstreams; returns a leak-free status DTO (no upstream URL/error exposed).
+	// Sits inside the same MiddlewareOperatorAuth wrap as all other BFF routes.
+	mux.HandleFunc("GET /api/health", healthAggregateHandler(cfg))
+
 	// Gate every route behind the app-layer operator token (D-01).
 	return proxy.MiddlewareOperatorAuth(cfg.OperatorToken, mux)
 }
