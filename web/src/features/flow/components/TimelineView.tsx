@@ -95,6 +95,17 @@ export interface TimelineViewProps {
    * instant-fills with NO following (Plan 05 sets this).
    */
   mode?: 'live' | 'replay'
+  /**
+   * 05-04 IC-4 overlay: current reconnect attempt (1-based; 0 when idle).
+   * Forwarded into ConnectionBadge for the "(n/N)…" counter.
+   * Also used in the reconnecting subline copy.
+   */
+  attempt?: number
+  /**
+   * 05-04 IC-4 overlay: max reconnect attempts (cap). Forwarded into
+   * ConnectionBadge and the reconnecting subline copy.
+   */
+  cap?: number
 }
 
 /** Is this frame the live tail of a still-running node (spin its icon)? */
@@ -124,6 +135,8 @@ export function TimelineView({
   conn,
   onRetry,
   mode = 'live',
+  attempt,
+  cap,
 }: TimelineViewProps) {
   const { events, nodeStatus, terminal, error } = timeline
   const scrollRef = useRef<HTMLDivElement>(null)
@@ -175,7 +188,9 @@ export function TimelineView({
         >
           Timeline
         </h2>
-        <ConnectionBadge conn={conn} />
+        {/* 05-04 IC-4: forward attempt/cap so the badge renders
+            "Reconnecting (n/N)…" during a transport drop. */}
+        <ConnectionBadge conn={conn} attempt={attempt} cap={cap} />
       </header>
 
       {/* Per-node status strip (D-01) — fed by the SAME reducer. */}
@@ -232,6 +247,23 @@ export function TimelineView({
           </div>
         )}
       </div>
+
+      {/* 05-04 IC-4: transient reconnecting overlay (partial timeline stays above).
+          The badge already shows "Reconnecting (n/N)…" in the header; this muted
+          subline below the timeline body confirms the drop is in progress.
+          TEXT node — T-V5. */}
+      {conn === 'reconnecting' && (
+        <p
+          className="text-sm"
+          style={{ color: 'var(--muted-foreground)' }}
+          data-slot="reconnecting-subline"
+        >
+          Connection dropped — reconnecting…
+          {attempt !== undefined && cap !== undefined
+            ? ` (attempt ${attempt} of ${cap}).`
+            : '.'}
+        </p>
+      )}
 
       {/* D-09: transport drop → AMBER header state already shown by the badge;
           here we add the muted reconnect copy + the Retry (→ /events hydrate). */}

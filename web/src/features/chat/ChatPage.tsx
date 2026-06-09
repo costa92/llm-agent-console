@@ -180,11 +180,6 @@ function AssistantBubble({
 }) {
   const streaming = turn.status === 'streaming'
   const hasAnswer = !!turn.finalAnswer && turn.finalAnswer.length > 0
-  // A transport drop on the active turn (conn reconnecting OR errored — Phase 5 D-03).
-  // 'reconnecting' = drop in progress (auto-retry); 'errored' = cap exhausted (gave up).
-  // Both represent a mid-turn transport break before a terminal frame.
-  const droppedTransport = isActive && (conn === 'reconnecting' || conn === 'errored')
-
   return (
     <MessageBubble role="assistant" aside={<ConnectionBadge conn={conn} />}>
       {/* The collapsible step trace (expanded+live while streaming, else
@@ -248,9 +243,24 @@ function AssistantBubble({
         </div>
       )}
 
+      {/* 05-04 IC-4: transient reconnecting subline (for symmetry with flow).
+          In practice chat is manual-retry-only (D-03 refinement) so
+          conn==='reconnecting' is never observed — but wire it for
+          completeness and in case a brief reconnecting tick arrives.
+          TEXT node — T-V5. */}
+      {isActive && conn === 'reconnecting' && (
+        <p
+          className="mt-2 text-xs"
+          style={{ color: 'var(--muted-foreground)' }}
+          data-slot="reconnecting-subline"
+        >
+          Connection dropped — reconnecting…
+        </p>
+      )}
+
       {/* Transport drop (D-05): amber line under the partial trace; the amber
           ConnectionBadge "Connection lost." is already in the header. */}
-      {droppedTransport && (
+      {isActive && conn === 'errored' && (
         <p
           className="mt-2 text-xs"
           style={{ color: 'var(--status-degraded)' }}
