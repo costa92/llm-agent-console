@@ -32,11 +32,13 @@ The three upstream services must be reachable at the URLs in `config/config.dev.
 
 | Service | Default port | Note |
 |---------|-------------|------|
-| memory-gateway | `:8080` | `POST /memory/recall/unified`, etc. |
-| flowd | `:7861` | `POST /flows/{id}/run/stream`, `POST /runs/{id}/replay`, etc. |
+| memory-gateway | `:8080` | API mounts under `/memory/*` (`POST /memory/recall/unified`, etc.) — so `memory_base` must end in `/memory` (see config note below). |
+| flowd | `:7861` | `POST /flows/{id}/run/stream`, `POST /runs/{id}/replay`, etc. — served at root, so `flow_base` is path-less. |
 | customer-support (chat) | `:8081` | Default upstream is `:8080`; the dev config maps it to `:8081` to avoid collision with memory-gateway |
 
 > The upstream URLs are configured in `config/config.dev.yaml` (or your `config/config.prod.yaml` for production). Adjust the host/port values to match your environment.
+
+> **memory-gateway schema — run BOTH migration chains before first use.** The memory backend's schema lives across two repos: run `llm-agent-memory-gateway/cmd/memory-gateway-migrate` (gateway tables) **and** `llm-agent-memory-postgres/cmd/memory-migrate` (core `memory_record` / `memory_idempotency` / … tables), both with `LLM_AGENT_MEMORY_PG_URL` set to the gateway's Postgres. Running only the gateway migrate leaves writes failing with `503 upstream_unavailable` → `relation "memory_idempotency" does not exist`.
 
 ---
 
@@ -70,14 +72,19 @@ The BFF reads its config from a YAML file. For production, create `config/config
 
 ```yaml
 # config/config.prod.yaml  — NEVER commit this file
-flowd_url: http://flowd-host:7861
+# Keys match internal/config (yaml tags): flow_base / memory_base / chat_base /
+# flowd_token / operator_token. Using flowd_url / memory_url / chat_url will NOT work.
+flow_base: http://flowd-host:7861
 flowd_token: <your-flowd-bearer-token>
 
-memory_url: http://memory-host:8080
+# IMPORTANT: memory_base MUST include the /memory path segment. The gateway mounts
+# its API under /memory/* and the BFF StripPrefixes /api/memory, so the base has to
+# re-supply /memory or every memory call 404s. (flow_base/chat_base stay path-less.)
+memory_base: http://memory-host:8080/memory
 
-chat_url: http://chat-host:8081
+chat_base: http://chat-host:8081
 
-operator_token: <your-operator-token>   # leave empty to disable operator auth in dev
+operator_token: <your-operator-token>   # leave empty to disable operator auth
 ```
 
 > **Warning: `config/config.prod.yaml` contains secrets — never commit this file.** It is already listed in `.gitignore`.

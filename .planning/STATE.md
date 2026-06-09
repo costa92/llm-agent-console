@@ -32,6 +32,12 @@ Last activity: 2026-06-09
 
 Progress: [██████████] 100%
 
+## Quick Tasks Completed
+
+| Date | Slug | Summary |
+|------|------|---------|
+| 2026-06-09 | memory-base-prefix | Fix `memory_base` to carry `/memory` prefix so the BFF reaches the gateway's `/memory/*` routes (was 404; found via live e2e). On branch `fix/memory-base-prefix`. |
+
 ## Verification Status (Phase 5)
 
 **Automated gate results (2026-06-09):**

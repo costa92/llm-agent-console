@@ -14,8 +14,11 @@ server:
   # TCP port the BFF HTTP server listens on. nginx proxies to bff:8090 (D-05).
   port: "8090"
 
-# Memory-gateway upstream base URL (D-03).
-memory_base: "http://localhost:8080"
+# Memory-gateway upstream base URL (D-03). The gateway mounts its API under
+# /memory/* (e.g. /memory/write, /memory/recall/unified, /memory/items/{id});
+# the BFF StripPrefixes /api/memory to /*, so this base MUST carry the /memory
+# segment for the stripped path to land on the gateway's routes.
+memory_base: "http://localhost:8080/memory"
 # flowd upstream base URL (D-03).
 flow_base: "http://localhost:7861"
 # Customer-support chat upstream base URL (D-03; :8081 to avoid the :8080 clash).
