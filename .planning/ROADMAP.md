@@ -202,8 +202,20 @@ Plans:
   2. Streamed flow runs and chat render incrementally through the deployed stack, with the fronting nginx verified not to buffer, gzip, or idle-timeout the stream routes (`proxy_buffering off`, no gzip on `text/event-stream`, `X-Accel-Buffering: no` passthrough).
   3. Required LB/proxy idle-timeout and buffering settings are documented for the deploy environment.
 
-**Plans**: TBD
-**Research**: Flag for phase-specific research — verify the umbrella's fronting proxy/LB config (buffering, gzip, idle timeout) against SSE routes; environment-specific, not in current research.
+**Plans**: 3 plans
+
+Plans:
+**Wave 1** *(GAP-1 nginx fix + GAP-2 restart policy + synthetic replay endpoint; no prior deps)*
+
+- [ ] 06-01-PLAN.md — nginx SSE regex fix (stream|replay) + compose restart policy + synthetic /api/replay/test BFF endpoint
+
+**Wave 2** *(blocked on 06-01)*
+
+- [ ] 06-02-PLAN.md — Makefile spa-build/up targets + sse-proof.sh PART 3 (replay-path SC-2 verification) + config injection checkpoint
+
+**Wave 3** *(blocked on 06-02)*
+
+- [ ] 06-03-PLAN.md — deploy/DEPLOY.md (SC-3 nginx settings documentation) + end-to-end human-verify checkpoint
 
 ## Progress
 
@@ -217,4 +229,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | 3. Flow Console | 5/5 | Complete   | 2026-06-04 |
 | 4. Chat Console | 3/3 | Complete   | 2026-06-04 |
 | 5. Health & Hardening | 4/4 | Complete   | 2026-06-09 |
-| 6. Deploy | 0/TBD | Not started | - |
+| 6. Deploy | 0/3 | Not started | - |
