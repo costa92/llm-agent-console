@@ -26,8 +26,11 @@ const syntheticTicks = 30
 // route (empty operator token = disabled in dev).
 //
 // Upstream routes use http.StripPrefix so the directors receive an already-
-// stripped path (e.g. /api/memory/items/1 → /items/1 at the gateway). Only these
-// mapped prefixes are reachable; any other /api/* path falls through to 404.
+// stripped path (e.g. /api/memory/items/1 → /items/1). The director re-prefixes
+// from the configured base: flow_base has no path so flowd is reached at root
+// (/flows), while memory_base carries /memory so the gateway's /memory/items/1
+// is reached. Only these mapped prefixes are reachable; any other /api/* path
+// falls through to 404.
 func New(cfg *config.Config) http.Handler {
 	mux := http.NewServeMux()
 
