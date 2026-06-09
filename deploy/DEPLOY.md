@@ -143,7 +143,7 @@ The SSE location regex `~* ^/api/.*(stream|replay)` matches all four SSE routes:
 | `/api/stream/test` | YES (`.*stream`) | Synthetic proof endpoint (dev/CI) |
 | `/api/flow/*/run/stream` | YES (`.*stream`) | Live flowd flow-run SSE |
 | `/api/flow/runs/*/replay` | YES (`.*replay`) | flowd replay SSE — GAP-1 fix (regex broadened from `.*stream` to `.*(stream\|replay)`) |
-| `/api/chat/stream` | YES (`.*stream`) | Customer-support chat SSE |
+| `/api/chat/chat/stream` | YES (`.*stream`) | Customer-support chat SSE (BFF strips `/api/chat` → `/chat/stream`) |
 
 > **Location ordering matters.** The SSE location block appears **before** the general `/api/` block in `nginx.conf`. nginx evaluates regex locations in declaration order — reversing the two blocks would silently route SSE traffic through the 60s-timeout REST block. Do not reorder. (See comment `T-01-02` in `deploy/nginx.conf`.)
 

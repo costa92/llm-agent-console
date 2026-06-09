@@ -60,10 +60,18 @@ operator_token: ""
 }
 
 // TestLoadHonorsExplicitPort confirms an explicit server.port is preserved.
+// The three upstream bases are now required, so they must be present here too.
 func TestLoadHonorsExplicitPort(t *testing.T) {
 	dir := t.TempDir()
 	path := filepath.Join(dir, "config.yaml")
-	if err := writeFile(t, path, "server:\n  port: \"9999\"\n"); err != nil {
+	body := `
+server:
+  port: "9999"
+memory_base: http://localhost:8080
+flow_base: http://localhost:7861
+chat_base: http://localhost:8081
+`
+	if err := writeFile(t, path, body); err != nil {
 		t.Fatalf("write temp config: %v", err)
 	}
 	cfg, err := Load(path)
@@ -72,5 +80,39 @@ func TestLoadHonorsExplicitPort(t *testing.T) {
 	}
 	if cfg.Server.Port != "9999" {
 		t.Errorf("Server.Port = %q, want 9999", cfg.Server.Port)
+	}
+}
+
+// TestLoadRejectsUnknownKey confirms strict decoding rejects a typo'd key like
+// memory_url (instead of memory_base) instead of silently leaving an empty base.
+func TestLoadRejectsUnknownKey(t *testing.T) {
+	dir := t.TempDir()
+	path := filepath.Join(dir, "config.yaml")
+	body := `
+memory_url: http://localhost:8080
+flow_base: http://localhost:7861
+chat_base: http://localhost:8081
+`
+	if err := writeFile(t, path, body); err != nil {
+		t.Fatalf("write temp config: %v", err)
+	}
+	if _, err := Load(path); err == nil {
+		t.Fatal("expected error for unknown key memory_url, got nil")
+	}
+}
+
+// TestLoadRequiresBases confirms Load fails fast when a required base is missing.
+func TestLoadRequiresBases(t *testing.T) {
+	dir := t.TempDir()
+	path := filepath.Join(dir, "config.yaml")
+	body := `
+memory_base: http://localhost:8080
+chat_base: http://localhost:8081
+`
+	if err := writeFile(t, path, body); err != nil {
+		t.Fatalf("write temp config: %v", err)
+	}
+	if _, err := Load(path); err == nil {
+		t.Fatal("expected error for missing flow_base, got nil")
 	}
 }
