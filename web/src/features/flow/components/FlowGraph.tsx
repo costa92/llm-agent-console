@@ -110,6 +110,7 @@ export function FlowGraph({ ir, nodeStatus }: FlowGraphProps) {
       style={{ borderColor: 'var(--border)', background: 'var(--card)', height: 320 }}
     >
       <ReactFlow
+        colorMode="dark"
         nodes={rfNodes}
         edges={rfEdges}
         nodeTypes={nodeTypes}
