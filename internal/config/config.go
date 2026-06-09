@@ -7,6 +7,7 @@
 package config
 
 import (
+	"bytes"
 	"fmt"
 	"os"
 
@@ -50,13 +51,28 @@ func Load(path string) (*Config, error) {
 		return nil, fmt.Errorf("config: cannot read config file %q: %w", path, err)
 	}
 
+	// Strict decode: reject unknown/typo'd keys (e.g. memory_url instead of
+	// memory_base) so a silent empty base never slips through to the proxy.
 	var cfg Config
-	if err := yaml.Unmarshal(data, &cfg); err != nil {
+	dec := yaml.NewDecoder(bytes.NewReader(data))
+	dec.KnownFields(true)
+	if err := dec.Decode(&cfg); err != nil {
 		return nil, fmt.Errorf("config: cannot parse YAML config %q: %w", path, err)
 	}
 
 	if cfg.Server.Port == "" {
 		cfg.Server.Port = "8090"
+	}
+
+	// Require all three upstream bases — an empty base breaks the proxy
+	// silently, so fail fast at boot (D-02).
+	switch {
+	case cfg.MemoryBase == "":
+		return nil, fmt.Errorf("config: %q missing required memory_base", path)
+	case cfg.FlowBase == "":
+		return nil, fmt.Errorf("config: %q missing required flow_base", path)
+	case cfg.ChatBase == "":
+		return nil, fmt.Errorf("config: %q missing required chat_base", path)
 	}
 
 	return &cfg, nil
