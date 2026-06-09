@@ -184,7 +184,7 @@ Plans:
 
 **Wave 2** *(Slice B reconnect wiring — blocked on 05-02)*
 
-- [ ] 05-03-PLAN.md — Auto-reconnect loop into useRunStream (flow hydrate+de-dup) + chat manual-retry-only refinement of D-03 + ConnectionBadge reconnecting arm (D-03)
+- [x] 05-03-PLAN.md — Auto-reconnect loop into useRunStream (flow hydrate+de-dup) + chat manual-retry-only refinement of D-03 + ConnectionBadge reconnecting arm (D-03)
 
 **Wave 3** *(Slice B finish — blocked on 05-03)*
 
@@ -216,5 +216,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | 2. Memory Console | 5/5 | Complete   | 2026-06-03 |
 | 3. Flow Console | 5/5 | Complete   | 2026-06-04 |
 | 4. Chat Console | 3/3 | Complete   | 2026-06-04 |
-| 5. Health & Hardening | 2/4 | In Progress|  |
+| 5. Health & Hardening | 3/4 | In Progress|  |
 | 6. Deploy | 0/TBD | Not started | - |
