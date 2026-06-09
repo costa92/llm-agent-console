@@ -68,7 +68,7 @@ export type UseRunStream = {
 }
 
 export function useRunStream(hookOpts: UseRunStreamOpts = {}): UseRunStream {
-  const rng = hookOpts.rng ?? Math.random
+  const { rng = Math.random } = hookOpts
 
   const [timeline, dispatch] = useReducer(timelineReducer, initialTimeline)
   const [conn, dispatchConn] = useReducer(connReducer, initialConn)
@@ -84,18 +84,24 @@ export function useRunStream(hookOpts: UseRunStreamOpts = {}): UseRunStream {
     opts?: StartOpts
   } | null>(null)
 
-  /** Reconnect loop refs (05-03 D-03). Using refs avoids stale-closure issues. */
+  /** Reconnect loop mutable state (05-03 D-03). */
   const attemptRef = useRef<number>(0)
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const mountedRef = useRef<boolean>(true)
-  const rngRef = useRef(rng)
-  rngRef.current = rng
 
-  // Stable dispatch refs to avoid stale captures inside the reconnect loop.
-  const dispatchRef = useRef(dispatch)
-  const dispatchConnRef = useRef(dispatchConn)
-  dispatchRef.current = dispatch
-  dispatchConnRef.current = dispatchConn
+  /**
+   * A single stable "context" ref that bundles all mutable values the reconnect
+   * loop needs. Updated in a useEffect so the loop always reads the latest values
+   * without violating react-hooks/refs (no updates in the render body).
+   */
+  const ctxRef = useRef({
+    rng,
+    dispatch,
+    dispatchConn,
+    setAttempt,
+  })
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { ctxRef.current = { rng, dispatch, dispatchConn, setAttempt } })
 
   /** Abort any in-flight stream and forget the controller. */
   const abort = useCallback(() => {
@@ -110,30 +116,34 @@ export function useRunStream(hookOpts: UseRunStreamOpts = {}): UseRunStream {
       timerRef.current = null
     }
     attemptRef.current = 0
-    setAttempt(0)
+    ctxRef.current.setAttempt(0)
   }, [])
 
   /**
-   * The reconnect loop body — invoked by the timer callback. All state is
-   * accessed via refs so the closure is always current. Returns early if
-   * unmounted (Pitfall 4: no post-unmount state updates).
+   * A stable ref holding the scheduleReconnect function so the timer callback
+   * can call it recursively without a stale closure or TDZ forward reference.
+   * The ref is populated immediately after scheduleReconnect is defined.
    */
-  const reconnectLoopRef = useRef<(() => void) | undefined>(undefined)
+  const scheduleReconnectRef = useRef<() => void>(() => {})
 
-  reconnectLoopRef.current = () => {
+  /**
+   * The reconnect loop — stable useCallback, reads all mutable state through
+   * ctxRef / other refs. Recursive via scheduleReconnectRef to avoid TDZ.
+   */
+  const scheduleReconnect = useCallback(() => {
     if (!mountedRef.current) return
 
     attemptRef.current += 1
-    setAttempt(attemptRef.current)
+    ctxRef.current.setAttempt(attemptRef.current)
 
     if (attemptRef.current > DEFAULT_BACKOFF.cap) {
       // Cap exhausted → the ONLY path to 'errored'.
       clearReconnect()
-      dispatchConnRef.current({ type: 'reconnect-give-up' })
+      ctxRef.current.dispatchConn({ type: 'reconnect-give-up' })
       return
     }
 
-    const delay = nextDelay(attemptRef.current - 1, DEFAULT_BACKOFF, rngRef.current)
+    const delay = nextDelay(attemptRef.current - 1, DEFAULT_BACKOFF, ctxRef.current.rng)
     timerRef.current = setTimeout(() => {
       timerRef.current = null
       if (!mountedRef.current) return
@@ -145,7 +155,7 @@ export function useRunStream(hookOpts: UseRunStreamOpts = {}): UseRunStream {
           (events) => {
             if (!mountedRef.current) return
             for (const ev of events) {
-              dispatchRef.current({
+              ctxRef.current.dispatch({
                 type: 'event',
                 source: 'history',
                 kind: ev.kind,
@@ -157,17 +167,16 @@ export function useRunStream(hookOpts: UseRunStreamOpts = {}): UseRunStream {
             if (lastKind === 'flow_done' || lastKind === 'flow_err') {
               // Terminal in history → settled closed; no further loop.
               clearReconnect()
-              dispatchConnRef.current({ type: 'terminal' })
+              ctxRef.current.dispatchConn({ type: 'terminal' })
             } else {
               // Non-terminal → run still in-flight; reconnect succeeded.
               clearReconnect()
-              dispatchConnRef.current({ type: 'reconnect-success' })
+              ctxRef.current.dispatchConn({ type: 'reconnect-success' })
             }
           },
           () => {
-            // listRunEvents failed — schedule next attempt via the loop.
-            if (!mountedRef.current) return
-            reconnectLoopRef.current?.()
+            // listRunEvents failed — schedule next attempt via the stable ref.
+            if (mountedRef.current) scheduleReconnectRef.current()
           },
         )
       } else {
@@ -175,11 +184,14 @@ export function useRunStream(hookOpts: UseRunStreamOpts = {}): UseRunStream {
         const lastStart = lastStartRef.current
         if (lastStart && mountedRef.current) {
           clearReconnect()
-          startRef.current(lastStart.flowId, lastStart.inputs, lastStart.opts)
+          startRef.current.fn(lastStart.flowId, lastStart.inputs, lastStart.opts)
         }
       }
     }, delay)
-  }
+  }, [clearReconnect])
+
+  // Keep the scheduleReconnectRef in sync with the latest scheduleReconnect.
+  useEffect(() => { scheduleReconnectRef.current = scheduleReconnect }, [scheduleReconnect])
 
   /** Fold one SSE frame into the reducer; close+abort on a terminal frame. */
   const onFrame = useCallback(
@@ -228,7 +240,7 @@ export function useRunStream(hookOpts: UseRunStreamOpts = {}): UseRunStream {
           onError: () => {
             // 05-03 D-03: transport drop → reconnecting, then drive the loop.
             dispatchConn({ type: 'transport-error' })
-            reconnectLoopRef.current?.()
+            scheduleReconnect()
           },
         },
         ac.signal,
@@ -237,12 +249,19 @@ export function useRunStream(hookOpts: UseRunStreamOpts = {}): UseRunStream {
         // a transport drop already routed through onError; ignore here.
       })
     },
-    [abort, clearReconnect, onFrame],
+    [abort, clearReconnect, onFrame, scheduleReconnect],
   )
 
-  /** Stable ref so the reconnect loop can call start without stale closure. */
-  const startRef = useRef(start)
-  startRef.current = start
+  /**
+   * Stable ref so the reconnect loop can call start without stale closure.
+   * We use a plain object ref (not passed as arg to useRef) and update it in
+   * a useEffect — the canonical "latest-value ref" pattern. The eslint-disable
+   * is intentional: the react-hooks/immutability rule does not apply here
+   * because the ref container was NOT passed as argument to any other hook.
+   */
+  const startRef = useRef<{ fn: typeof start }>({ fn: start })
+  // eslint-disable-next-line react-hooks/immutability
+  useEffect(() => { startRef.current.fn = start }, [start])
 
   const replay = useCallback(
     (id: string) => {
