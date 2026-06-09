@@ -44,6 +44,9 @@ services:
     healthcheck:
       # nginx is ready once it can proxy /healthz through to the BFF. nginx:alpine
       # ships wget (not curl), so the check uses wget for portability.
-      test: ["CMD", "wget", "-qO-", "http://localhost/healthz"]
+      # Use 127.0.0.1 (not localhost): /etc/hosts maps localhost to ::1 too, and
+      # BusyBox wget tries IPv6 first, but nginx `listen 80;` is IPv4-only → the
+      # healthcheck would get "connection refused" while the proxy works fine.
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1/healthz"]
       interval: 2s
       retries: 10
