@@ -37,8 +37,10 @@ describe('connReducer — happy path', () => {
 })
 
 describe('connReducer — error path', () => {
-  it('a transport-error before any terminal → errored', () => {
-    expect(run([{ type: 'start' }, { type: 'transport-error' }])).toBe('errored')
+  it('a transport-error before any terminal → reconnecting (Phase 5: was errored, now starts retry)', () => {
+    // Phase 5 (D-03): transport-error no longer lands directly in errored.
+    // It enters reconnecting; only reconnect-give-up reaches errored.
+    expect(run([{ type: 'start' }, { type: 'transport-error' }])).toBe('reconnecting')
   })
 })
 

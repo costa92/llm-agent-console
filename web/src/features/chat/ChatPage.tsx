@@ -180,8 +180,10 @@ function AssistantBubble({
 }) {
   const streaming = turn.status === 'streaming'
   const hasAnswer = !!turn.finalAnswer && turn.finalAnswer.length > 0
-  // A transport drop on the active turn (conn errored with no terminal frame).
-  const droppedTransport = isActive && conn === 'errored'
+  // A transport drop on the active turn (conn reconnecting OR errored — Phase 5 D-03).
+  // 'reconnecting' = drop in progress (auto-retry); 'errored' = cap exhausted (gave up).
+  // Both represent a mid-turn transport break before a terminal frame.
+  const droppedTransport = isActive && (conn === 'reconnecting' || conn === 'errored')
 
   return (
     <MessageBubble role="assistant" aside={<ConnectionBadge conn={conn} />}>

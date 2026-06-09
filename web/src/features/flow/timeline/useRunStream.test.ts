@@ -177,14 +177,16 @@ describe('useRunStream — terminal aborts the stream (Pitfall 6)', () => {
   })
 })
 
-describe('useRunStream — transport error before terminal → errored', () => {
-  it('onError with no terminal frame flips conn to errored', async () => {
+describe('useRunStream — transport error before terminal → reconnecting (Phase 5)', () => {
+  it('onError with no terminal frame flips conn to reconnecting (not immediately errored — D-03)', async () => {
+    // Phase 5 (D-03): transport-error now enters reconnecting, not errored.
+    // Cap exhaustion (reconnect-give-up) is the only path to errored.
     const { result } = renderHook(() => useRunStream())
     act(() => result.current.start('echo_chain', {}))
 
     act(() => last().error())
 
-    await waitFor(() => expect(result.current.conn).toBe('errored'))
+    await waitFor(() => expect(result.current.conn).toBe('reconnecting'))
   })
 })
 
@@ -206,9 +208,9 @@ describe('useRunStream — retry() hydrates /events on a KNOWN run (D-09 / IC-6)
     // The run was created (X-Run-ID arrived) and emitted a live prefix...
     act(() => last().open('run_77'))
     act(() => last().emit(goldenSuccess.slice(0, 3))) // flow_started, node_started, node_finished
-    // ...then the transport drops.
+    // ...then the transport drops → reconnecting (Phase 5 D-03).
     act(() => last().error())
-    await waitFor(() => expect(result.current.conn).toBe('errored'))
+    await waitFor(() => expect(result.current.conn).toBe('reconnecting'))
 
     const runStreamCallsBefore = runStreamMock.mock.calls.length
 
@@ -236,9 +238,9 @@ describe('useRunStream — retry() hydrates /events on a KNOWN run (D-09 / IC-6)
   it('retry with NO known runId re-opens runStream (a genuinely new attempt)', async () => {
     const { result } = renderHook(() => useRunStream())
     act(() => result.current.start('echo_chain', {}))
-    // Stream dies BEFORE X-Run-ID arrives.
+    // Stream dies BEFORE X-Run-ID arrives → reconnecting (Phase 5 D-03).
     act(() => last().error())
-    await waitFor(() => expect(result.current.conn).toBe('errored'))
+    await waitFor(() => expect(result.current.conn).toBe('reconnecting'))
 
     const before = runStreamMock.mock.calls.length
     await act(async () => {

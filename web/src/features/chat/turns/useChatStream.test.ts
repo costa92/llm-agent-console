@@ -123,8 +123,10 @@ describe('useChatStream — Stop keeps the partial + conn closed, NEVER errored 
   })
 })
 
-describe('useChatStream — transport drop with no Stop → errored (amber)', () => {
-  it('fail() before any terminal frame flips conn to errored', async () => {
+describe('useChatStream — transport drop with no Stop → reconnecting (Phase 5 D-03)', () => {
+  it('fail() before any terminal frame flips conn to reconnecting (not immediately errored)', async () => {
+    // Phase 5 (D-03): transport-error enters reconnecting, not errored.
+    // Cap exhaustion (reconnect-give-up) is the only path to errored.
     const { result } = renderHook(() => useChatStream())
 
     act(() => result.current.send('hi'))
@@ -134,7 +136,7 @@ describe('useChatStream — transport drop with no Stop → errored (amber)', ()
     await act(async () => {
       await fake.fail(new Error('transport drop'))
     })
-    await waitFor(() => expect(result.current.conn).toBe('errored'))
+    await waitFor(() => expect(result.current.conn).toBe('reconnecting'))
   })
 })
 

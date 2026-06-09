@@ -27,13 +27,18 @@ const STATE_META: Record<
     label: 'Streaming',
     Icon: Radio,
   },
+  reconnecting: {
+    token: 'var(--status-degraded)', // AMBER — in-progress recovery (Phase 5 D-03)
+    label: 'Reconnecting',
+    Icon: Loader,                   // SPINNER — distinguishes from static Unplug
+  },
   closed: {
     token: 'var(--status-unknown)', // NEUTRAL — stream cleanly ended
     label: 'Closed',
     Icon: CircleCheck,
   },
   errored: {
-    token: 'var(--status-degraded)', // AMBER — recoverable transport drop (D-09)
+    token: 'var(--status-degraded)', // AMBER — gave up, manual retry available (D-09)
     label: 'Connection lost',
     Icon: Unplug,
   },
@@ -46,7 +51,9 @@ export interface ConnectionBadgeProps {
 export function ConnectionBadge({ conn }: ConnectionBadgeProps) {
   if (conn === 'idle') return null
   const meta = STATE_META[conn]
-  const Icon = conn === 'streaming' ? Loader : meta.Icon
+  // streaming and reconnecting both spin a Loader icon (05-RESEARCH Pattern 5)
+  const Icon = conn === 'streaming' || conn === 'reconnecting' ? Loader : meta.Icon
+  const spinning = conn === 'streaming' || conn === 'reconnecting'
   return (
     <Badge
       variant="outline"
@@ -58,7 +65,7 @@ export function ConnectionBadge({ conn }: ConnectionBadgeProps) {
       }}
     >
       <Icon
-        className={conn === 'streaming' ? 'size-3.5 animate-spin' : 'size-3.5'}
+        className={spinning ? 'size-3.5 animate-spin' : 'size-3.5'}
         aria-hidden
       />
       {meta.label}
