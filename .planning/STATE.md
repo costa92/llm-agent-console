@@ -2,9 +2,9 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: verifying
-stopped_at: Phase 5 UI-SPEC approved
-last_updated: "2026-06-09T08:22:43.748Z"
+status: human_needed
+stopped_at: Phase 5 verified (PASS-WITH-CARRYFORWARD) — awaiting live-service human UAT before Phase 6
+last_updated: "2026-06-09T16:28:00.000Z"
 last_activity: 2026-06-09
 progress:
   total_phases: 6
@@ -21,16 +21,30 @@ progress:
 See: .planning/PROJECT.md (updated 2026-06-02)
 
 **Core value:** Turn the ecosystem's headless service APIs into one usable, observable operator surface — see and act on what the backends are doing from a single web UI.
-**Current focus:** Phase 05 — health-hardening
+**Current focus:** Phase 05 — health-hardening (verified; awaiting live-service UAT)
 
 ## Current Position
 
-Phase: 05 (health-hardening) — EXECUTING
+Phase: 05 (health-hardening) — VERIFIED (PASS-WITH-CARRYFORWARD)
 Plan: 4 of 4
-Status: Phase complete — ready for verification
+Status: All 4 plans executed; verification PASS — 308/308 TS tests, Go suite green, typecheck + build clean. Two live-service manual tests carried forward to Phase 6 deploy scope.
 Last activity: 2026-06-09
 
 Progress: [██████████] 100%
+
+## Verification Status (Phase 5)
+
+**Automated gate results (2026-06-09):**
+- `GOWORK=off go test ./...` — PASS
+- `GOWORK=off go test ./internal/router/ -run Health -count=1` — PASS (3/3 subtests)
+- `cd web && npm run test` — PASS (308/308 tests, 38 files)
+- `cd web && npm run typecheck` — PASS (0 errors)
+- `cd web && npm run lint` — PASS (0 errors, 6 pre-existing warnings)
+- `cd web && npm run build` — PASS (726kB, 0 errors)
+
+**Carried forward to Phase 6 (live-service legs, per 05-VALIDATION.md Manual-Only):**
+1. Live health dots reflect real service state (requires compose stack up)
+2. Live stream transport drop → reconnect → resume with no duplicate events (requires live flowd + nginx drop)
 
 ## Performance Metrics
 
@@ -120,6 +134,9 @@ Recent decisions affecting current work:
 - [Phase ?]: D-05 three signals render as three distinct markers keyed off (status, conn): muted Stopped / red Failed / amber Connection lost — the 04-01 machine guarantees Stop->closed
 - [Phase ?]: 05-01: /api/health BFF handler with parallel probes (goroutines+WaitGroup); DTO carries only status/lastChecked/latencyMs (T-05-leak)
 - [Phase ?]: 05-01: useServiceHealth TanStack Query refetchInterval 15s + stale-on-self-failure (q.isError → unknown + stale lastChecked from q.data)
+- [Phase 05]: 05-02: reconnecting state added additively to ConnState; transport-error → reconnecting; reconnect-give-up is the only path to errored; terminal always wins (no storms)
+- [Phase 05]: 05-03: chat is manual-retry-only on a drop (handleChatDrop dispatches transport-error+reconnect-give-up atomically from BOTH seams); flow auto-reconnects via capped backoff → retry()/listRunEvents de-dup
+- [Phase 05]: 05-04: five-state conformance confirmed (FlowsPage→FiveStateWrapper, RunDetail→FiveStateWrapper, ChatPage inline); reconnect overlay wired on flow timeline (attempt/cap threaded RunDetail→TimelineView→ConnectionBadge) and chat
 
 ### Pending Todos
 
@@ -137,10 +154,11 @@ Items acknowledged and carried forward from previous milestone close:
 
 | Category | Item | Status | Deferred At |
 |----------|------|--------|-------------|
-| *(none)* | | | |
+| Live-service UAT | Health dots reflect real service state (flowd/chat/memory-gateway up/down/unknown) | Carried to Phase 6 | Phase 5 verification 2026-06-09 |
+| Live-service UAT | Flow stream transport drop → Reconnecting(n/N) → resume with de-dup (requires live flowd + nginx drop) | Carried to Phase 6 | Phase 5 verification 2026-06-09 |
 
 ## Session Continuity
 
-Last session: 2026-06-09T08:22:43.740Z
-Stopped at: Phase 5 UI-SPEC approved
+Last session: 2026-06-09T16:28:00.000Z
+Stopped at: Phase 5 verification complete — PASS-WITH-CARRYFORWARD; ready for Phase 6 planning or live UAT
 Resume file: None
