@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 
@@ -124,6 +125,61 @@ func TestHealthAggregate(t *testing.T) {
 			if strings.Contains(body, forbidden) {
 				t.Errorf("response contains forbidden field %q: %s", forbidden, body)
 			}
+		}
+	})
+
+	t.Run("MemoryProbeHitsRootMetrics", func(t *testing.T) {
+		// memory_base now carries the gateway's /memory API mount, but the
+		// gateway serves GET /metrics at the server ROOT. The probe must strip
+		// /memory before appending /metrics, i.e. hit /metrics — not
+		// /memory/metrics (which 404s → memory always "down").
+		var mu sync.Mutex
+		var paths []string
+		srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			mu.Lock()
+			paths = append(paths, r.URL.Path)
+			mu.Unlock()
+			w.WriteHeader(http.StatusOK)
+		}))
+		defer srv.Close()
+
+		cfgMem := &config.Config{
+			FlowBase:   srv.URL,
+			ChatBase:   srv.URL,
+			MemoryBase: srv.URL + "/memory",
+		}
+		h := healthAggregateHandler(cfgMem)
+		req := httptest.NewRequest(http.MethodGet, "/api/health", nil)
+		rec := httptest.NewRecorder()
+		h.ServeHTTP(rec, req)
+
+		mu.Lock()
+		recorded := append([]string(nil), paths...)
+		mu.Unlock()
+
+		var sawRootMetrics bool
+		for _, p := range recorded {
+			if p == "/memory/metrics" {
+				t.Errorf("memory probe hit %q; want root /metrics (memory_base carries /memory mount)", p)
+			}
+			if p == "/metrics" {
+				sawRootMetrics = true
+			}
+		}
+		if !sawRootMetrics {
+			t.Errorf("no probe hit root /metrics; recorded paths = %v", recorded)
+		}
+
+		var body struct {
+			Services map[string]struct {
+				Status string `json:"status"`
+			} `json:"services"`
+		}
+		if err := json.Unmarshal(rec.Body.Bytes(), &body); err != nil {
+			t.Fatalf("invalid JSON: %v\nbody: %s", err, rec.Body.String())
+		}
+		if got := body.Services["memory"].Status; got != "up" {
+			t.Errorf("memory.status = %q, want up", got)
 		}
 	})
 
