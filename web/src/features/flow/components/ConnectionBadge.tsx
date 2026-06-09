@@ -16,6 +16,10 @@ import type { ConnState } from '@/features/flow/timeline/connection'
  *
  * `idle` (no run yet) renders nothing — the badge only appears once a stream has
  * opened.
+ *
+ * 05-03 D-03: `reconnecting` arm renders amber spinner + "(n/N)…" counter when
+ * `attempt`/`cap` props are provided (UI-SPEC NBR-3). Without counts it renders
+ * "Reconnecting…". Distinct from static "Connection lost" (errored — no spinner).
  */
 
 const STATE_META: Record<
@@ -46,14 +50,36 @@ const STATE_META: Record<
 
 export interface ConnectionBadgeProps {
   conn: ConnState
+  /**
+   * Current reconnect attempt (1-based), e.g. 2 → renders "(2/N)…".
+   * Only meaningful when conn === 'reconnecting'. Pass undefined to omit the counter.
+   * UI-SPEC NBR-3: counter is optional — bare "Reconnecting…" when absent.
+   */
+  attempt?: number
+  /**
+   * Max reconnect attempts (cap), e.g. 5. Combined with attempt to render "(n/N)…".
+   * Only meaningful when conn === 'reconnecting' and attempt is provided.
+   */
+  cap?: number
 }
 
-export function ConnectionBadge({ conn }: ConnectionBadgeProps) {
+export function ConnectionBadge({ conn, attempt, cap }: ConnectionBadgeProps) {
   if (conn === 'idle') return null
   const meta = STATE_META[conn]
   // streaming and reconnecting both spin a Loader icon (05-RESEARCH Pattern 5)
   const Icon = conn === 'streaming' || conn === 'reconnecting' ? Loader : meta.Icon
   const spinning = conn === 'streaming' || conn === 'reconnecting'
+
+  // Build the label: "Reconnecting (n/N)…" when conn=reconnecting + counts present.
+  let label = meta.label
+  if (conn === 'reconnecting') {
+    if (attempt !== undefined && cap !== undefined) {
+      label = `Reconnecting (${attempt}/${cap})…`
+    } else {
+      label = 'Reconnecting…'
+    }
+  }
+
   return (
     <Badge
       variant="outline"
@@ -68,7 +94,7 @@ export function ConnectionBadge({ conn }: ConnectionBadgeProps) {
         className={spinning ? 'size-3.5 animate-spin' : 'size-3.5'}
         aria-hidden
       />
-      {meta.label}
+      {label}
     </Badge>
   )
 }

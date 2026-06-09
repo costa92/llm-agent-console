@@ -31,6 +31,19 @@ import { turnsReducer, initialTurns, type Turn } from './reducer'
  * The D-05 Stop contract (Pitfall 4): stop() settles the connection 'closed'
  * BEFORE aborting, so the abort-induced onError/rejection can never flip it to
  * 'errored' (the connection terminal-then-error guard holds it 'closed').
+ *
+ * D-03 REFINEMENT (05-03 Plan 03 — resolves Open-Question #1): Chat is
+ * MANUAL-RETRY-ONLY on a transport drop. Unlike flow (which de-dups via
+ * (kind,node,ordinal)), chat has NO de-dup/replay seam (Phase-4 contract) —
+ * an auto re-open would re-stream the entire answer, producing a duplicate.
+ * Therefore BOTH live-drop seams (onError and .catch openedRef-true) dispatch
+ * transport-error THEN reconnect-give-up immediately, driving the machine
+ * straight to 'errored' without looping through 'reconnecting'.
+ * The operator must hit Retry to re-open the stream.
+ * This REFINES CONTEXT D-03's "chat re-opens the stream" — the research
+ * revealed the duplication problem, so flow auto-reconnects (de-dups) while
+ * chat is manual-retry-only; both still stop on terminal, both reach 'errored'
+ * on a drop/cap.
  */
 
 export type UseChatStreamOptions = {
@@ -51,6 +64,13 @@ export type UseChatStream = {
   stop: () => void
   /** New session (D-06): clear the transcript + reset the session id. */
   newSession: () => void
+  /**
+   * Manual operator retry (D-03 refinement, 05-03): re-opens the stream after
+   * a transport drop landed 'errored'. This is operator-driven only — chat does
+   * NOT auto-reconnect (no de-dup seam). A fresh chatStream call is made with
+   * the last message; the session is preserved so the agent can resume context.
+   */
+  retry: () => void
 }
 
 export function useChatStream(opts: UseChatStreamOptions = {}): UseChatStream {
@@ -66,11 +86,36 @@ export function useChatStream(opts: UseChatStreamOptions = {}): UseChatStream {
   /** True once the stream opened cleanly (event-stream) — distinguishes a live
    *  transport drop (→ errored) from a non-2xx open (→ send-failure). */
   const openedRef = useRef(false)
+  /** The last message sent, for retry() re-open. */
+  const lastMessageRef = useRef<string | undefined>(undefined)
+
+  /**
+   * "Context" ref for stable captures in async callbacks — holds the latest
+   * onSendError callback. Updated via useEffect so callbacks are never stale.
+   */
+  const onSendErrorRef = useRef(onSendError)
+  useEffect(() => { onSendErrorRef.current = onSendError }, [onSendError])
 
   /** Abort any in-flight stream and forget the controller. */
   const abort = useCallback(() => {
     abortRef.current?.abort()
     abortRef.current = null
+  }, [])
+
+  /**
+   * D-03 refinement (05-03): chat is manual-retry-only. Both live-drop seams
+   * must reach 'errored' without looping through 'reconnecting'. This helper
+   * dispatches transport-error THEN reconnect-give-up in one synchronous step
+   * so the machine goes:
+   *   'streaming' → transport-error → 'reconnecting' → reconnect-give-up → 'errored'
+   * Both dispatches are synchronous — React batches them into a single render so
+   * 'reconnecting' is never observed by the UI.
+   * Calling this from BOTH the onError AND the .catch openedRef-true branch
+   * guarantees that neither seam can strand chat in 'reconnecting' (Pitfall 1).
+   */
+  const handleChatDrop = useCallback(() => {
+    dispatchConn({ type: 'transport-error' })  // → 'reconnecting'
+    dispatchConn({ type: 'reconnect-give-up' }) // → 'errored' (immediate, batched)
   }, [])
 
   /** Fold one SSE frame; close+abort on a terminal frame (Pitfall 6). */
@@ -97,13 +142,18 @@ export function useChatStream(opts: UseChatStreamOptions = {}): UseChatStream {
     [abort],
   )
 
-  const send = useCallback(
+  /**
+   * Core stream open — shared by send() and retry(). Captures the message in
+   * lastMessageRef so retry() can re-use it.
+   */
+  const openStream = useCallback(
     (message: string) => {
       abort()
       const ac = new AbortController()
       abortRef.current = ac
       endedRef.current = false
       openedRef.current = false
+      lastMessageRef.current = message
       dispatch({ type: 'startUser', message })
       dispatchConn({ type: 'reset' })
       dispatchConn({ type: 'start' })
@@ -123,12 +173,14 @@ export function useChatStream(opts: UseChatStreamOptions = {}): UseChatStream {
           },
           onMessage: ({ event, data }) => onFrame(event, data),
           onError: () => {
-            // A late onError after a terminal frame / stop is ignored by the
-            // connection guard; a live drop → errored; a never-opened failure →
-            // send-failure (handled in the .catch below — onError may not carry
-            // enough to distinguish, so route via openedRef there).
+            // (1) onError seam: live drop (openedRef true) → errored immediately.
+            // Late onError after terminal/stop is ignored by the connection guard.
             if (endedRef.current) return
-            if (openedRef.current) dispatchConn({ type: 'transport-error' })
+            if (openedRef.current) {
+              // D-03 refinement: manual-retry-only → drive to errored immediately.
+              handleChatDrop()
+            }
+            // Never-opened failure handled in the .catch below.
           },
         },
         ac.signal,
@@ -137,15 +189,25 @@ export function useChatStream(opts: UseChatStreamOptions = {}): UseChatStream {
         // on a non-2xx open. A clean end / stop already settled the connection.
         if (endedRef.current) return
         if (openedRef.current) {
-          // the stream was live then dropped → already errored via onError
-          dispatchConn({ type: 'transport-error' })
+          // (2) .catch openedRef-true seam: stream was live then dropped.
+          // D-03 refinement: manual-retry-only → drive to errored immediately.
+          // Both seams call handleChatDrop() which is idempotent on an already-
+          // errored machine (reconnect-give-up from 'errored' is a no-op).
+          handleChatDrop()
         } else {
           // never opened cleanly → a send-failure (429/400), the composer re-enables
-          onSendError?.(err)
+          onSendErrorRef.current?.(err)
         }
       })
     },
-    [abort, onFrame, onSendError],
+    [abort, handleChatDrop, onFrame],
+  )
+
+  const send = useCallback(
+    (message: string) => {
+      openStream(message)
+    },
+    [openStream],
   )
 
   const sendSync = useCallback(
@@ -159,10 +221,10 @@ export function useChatStream(opts: UseChatStreamOptions = {}): UseChatStream {
         }
         dispatch({ type: 'syncReply', answer: reply.answer })
       } catch (err) {
-        onSendError?.(err)
+        onSendErrorRef.current?.(err)
       }
     },
-    [onSendError],
+    [],
   )
 
   const stop = useCallback(() => {
@@ -177,13 +239,26 @@ export function useChatStream(opts: UseChatStreamOptions = {}): UseChatStream {
     endedRef.current = false
     openedRef.current = false
     sessionRef.current = undefined
+    lastMessageRef.current = undefined
     setSessionId(undefined)
     dispatch({ type: 'reset' })
     dispatchConn({ type: 'reset' })
   }, [abort])
 
+  /**
+   * Manual retry (D-03 refinement, 05-03): re-opens the stream after a
+   * transport drop. Operator-driven only — NOT auto. The transcript is NOT
+   * reset (partial turns stay visible). The session is preserved so the
+   * agent can resume context if the upstream supports it.
+   */
+  const retry = useCallback(() => {
+    const lastMessage = lastMessageRef.current
+    if (!lastMessage) return
+    openStream(lastMessage)
+  }, [openStream])
+
   // Abort the in-flight stream on unmount (no detached upstream request).
   useEffect(() => () => abortRef.current?.abort(), [])
 
-  return { turns: state.turns, conn, sessionId, send, sendSync, stop, newSession }
+  return { turns: state.turns, conn, sessionId, send, sendSync, stop, newSession, retry }
 }

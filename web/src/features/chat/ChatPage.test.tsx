@@ -182,19 +182,21 @@ describe('ChatPage — in-stream error frame (D-01 stop-on-error)', () => {
   })
 })
 
-describe('ChatPage — transport drop (D-05 / Phase 5 reconnecting)', () => {
-  it('shows the amber "Reconnecting" badge + a muted dropped line, partial trace stays (Phase 5 D-03)', async () => {
-    // Phase 5 (D-03): transport drop → reconnecting (was errored/"Connection lost").
-    // ConnectionBadge now renders "Reconnecting" with a spinner amber badge.
-    // "Connection lost" only appears after cap exhaustion (reconnect-give-up → errored).
+describe('ChatPage — transport drop (D-05 / Phase 5 D-03 manual-retry-only)', () => {
+  it('shows the amber "Connection lost" badge + a muted dropped line, partial trace stays (D-03 refinement)', async () => {
+    // Phase 5 D-03 REFINEMENT (05-03): chat is manual-retry-only on a transport drop.
+    // Chat has no de-dup seam — auto re-open would duplicate the whole answer.
+    // Both drop seams drive to 'errored' immediately (transport-error → reconnect-give-up).
+    // ConnectionBadge renders "Connection lost" (static Unplug amber) — NOT the
+    // reconnecting spinner (which is flow-only in the reconnect loop).
     render(<ChatPage />)
     send('drop me')
     await fake.emitOpen({ 'X-Session-Id': 'sess-drop-1' })
     fake.emit(goldenChatSuccess.slice(0, 2)) // partial, no terminal
     await fake.fail() // transport drop — onError + reject, NO terminal frame
 
-    // The ConnectionBadge renders "Reconnecting" (amber, spinner) in Phase 5.
-    expect(await screen.findByText('Reconnecting')).toBeInTheDocument()
+    // The ConnectionBadge renders "Connection lost" (errored, D-03 refinement).
+    expect(await screen.findByText('Connection lost')).toBeInTheDocument()
     expect(
       screen.getByText('Connection dropped before the reply finished.'),
     ).toBeInTheDocument()
