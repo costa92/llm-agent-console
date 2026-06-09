@@ -69,7 +69,70 @@ describe('connReducer — extensibility', () => {
   it('the union is the source of truth (no boolean) — Phase 5 slots reconnecting in', () => {
     // Compile-time assurance: ConnState is a string union; this test documents
     // that a future 'reconnecting' is a pure additive change.
-    const states: ConnState[] = ['idle', 'streaming', 'closed', 'errored']
-    expect(states).toHaveLength(4)
+    const states: ConnState[] = ['idle', 'streaming', 'closed', 'errored', 'reconnecting']
+    expect(states).toHaveLength(5)
+  })
+})
+
+describe('connReducer — reconnecting (Phase 5 additive extension)', () => {
+  it('transport-error while streaming → reconnecting (not immediately errored)', () => {
+    expect(run([{ type: 'start' }, { type: 'transport-error' }])).toBe('reconnecting')
+  })
+
+  it('drop → reconnecting → success → streaming', () => {
+    expect(
+      run([
+        { type: 'start' },
+        { type: 'transport-error' },
+        { type: 'reconnect-success' },
+      ]),
+    ).toBe('streaming')
+  })
+
+  it('drop → cap exhausted → errored', () => {
+    expect(
+      run([
+        { type: 'start' },
+        { type: 'transport-error' },
+        { type: 'reconnect-give-up' },
+      ]),
+    ).toBe('errored')
+  })
+
+  it('terminal wins mid-reconnect → closed (no storm)', () => {
+    expect(
+      run([
+        { type: 'start' },
+        { type: 'transport-error' },
+        { type: 'terminal' },
+      ]),
+    ).toBe('closed')
+  })
+
+  it('transport-error while reconnecting is idempotent (loop owns give-up)', () => {
+    expect(
+      run([
+        { type: 'start' },
+        { type: 'transport-error' },
+        { type: 'transport-error' },
+      ]),
+    ).toBe('reconnecting')
+  })
+
+  it('reconnect-give-up is the ONLY path from reconnecting to errored — transport-error alone never lands in errored (Pitfall 1)', () => {
+    // transport-error from streaming → reconnecting (NOT errored)
+    const afterDrop = run([{ type: 'start' }, { type: 'transport-error' }])
+    expect(afterDrop).toBe('reconnecting')
+    expect(afterDrop).not.toBe('errored')
+  })
+
+  it('a late transport-error AFTER a terminal close is still ignored (stays closed)', () => {
+    expect(
+      run([
+        { type: 'start' },
+        { type: 'terminal' },
+        { type: 'transport-error' },
+      ]),
+    ).toBe('closed')
   })
 })
