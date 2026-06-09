@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: planning_complete
-stopped_at: Phase 6 planned (3 plans, plan-checker PASS-WITH-NITS) — awaiting execution approval (deploy is outward-facing)
-last_updated: "2026-06-09T08:58:10.809Z"
-last_activity: 2026-06-09
+status: executing
+stopped_at: Phase 6 Plan 1 complete — GAP-1/GAP-2 closed; synthetic /api/replay/test added; 06-02 sse-proof next
+last_updated: "2026-06-09T09:05:00Z"
+last_activity: 2026-06-09 -- Phase 06 Plan 01 complete
 progress:
   total_phases: 6
   completed_phases: 5
-  total_plans: 22
-  completed_plans: 22
-  percent: 83
+  total_plans: 25
+  completed_plans: 23
+  percent: 88
 ---
 
 # Project State
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-06-02)
 
 **Core value:** Turn the ecosystem's headless service APIs into one usable, observable operator surface — see and act on what the backends are doing from a single web UI.
-**Current focus:** Phase 05 — health-hardening (verified; awaiting live-service UAT)
+**Current focus:** Phase 06 — deploy
 
 ## Current Position
 
-Phase: 05 (health-hardening) — VERIFIED (PASS-WITH-CARRYFORWARD)
-Plan: 4 of 4
-Status: planning_complete
-Last activity: 2026-06-09
+Phase: 06 (deploy) — EXECUTING
+Plan: 2 of 3 (Plan 01 complete)
+Status: Executing Phase 06
+Last activity: 2026-06-09 -- Phase 06 Plan 01 complete
 
 Progress: [██████████] 100%
 
@@ -86,6 +86,7 @@ Progress: [██████████] 100%
 | Phase 04 P02 | 4min | 2 tasks | 6 files |
 | Phase 4 P3 | 6min | 2 tasks | 6 files |
 | Phase 05-health-hardening P05-01 | 9min | 2 tasks | 6 files |
+| Phase 06-deploy P06-01 | 3min | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -139,6 +140,7 @@ Recent decisions affecting current work:
 - [Phase 05]: 05-02: reconnecting state added additively to ConnState; transport-error → reconnecting; reconnect-give-up is the only path to errored; terminal always wins (no storms)
 - [Phase 05]: 05-03: chat is manual-retry-only on a drop (handleChatDrop dispatches transport-error+reconnect-give-up atomically from BOTH seams); flow auto-reconnects via capped backoff → retry()/listRunEvents de-dup
 - [Phase 05]: 05-04: five-state conformance confirmed (FlowsPage→FiveStateWrapper, RunDetail→FiveStateWrapper, ChatPage inline); reconnect overlay wired on flow timeline (attempt/cap threaded RunDetail→TimelineView→ConnectionBadge) and chat
+- [Phase 06]: 06-01: nginx SSE regex ^/api/.*(stream|replay) — structural copy handler pattern for syntheticReplaySSEHandler (not shared helper); TestSyntheticReplaySSEHandler uses httptest.NewServer not recorder for incremental flush proof
 
 ### Pending Todos
 
@@ -161,6 +163,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-06-09T16:28:00.000Z
-Stopped at: Phase 5 verification complete — PASS-WITH-CARRYFORWARD; ready for Phase 6 planning or live UAT
+Last session: 2026-06-09T09:05:00Z
+Stopped at: Phase 6 Plan 1 complete — GAP-1/GAP-2 closed; /api/replay/test added; 06-02 next
 Resume file: None
