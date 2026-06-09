@@ -211,7 +211,7 @@ Plans:
 
 **Wave 2** *(blocked on 06-01)*
 
-- [ ] 06-02-PLAN.md — Makefile spa-build/up targets + sse-proof.sh PART 3 (replay-path SC-2 verification) + config injection checkpoint
+- [x] 06-02-PLAN.md — Makefile spa-build/up targets + sse-proof.sh PART 3 (replay-path SC-2 verification) + config injection checkpoint
 
 **Wave 3** *(blocked on 06-02)*
 
@@ -229,4 +229,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | 3. Flow Console | 5/5 | Complete   | 2026-06-04 |
 | 4. Chat Console | 3/3 | Complete   | 2026-06-04 |
 | 5. Health & Hardening | 4/4 | Complete   | 2026-06-09 |
-| 6. Deploy | 1/3 | Executing  |  |
+| 6. Deploy | 2/3 | In Progress|  |
