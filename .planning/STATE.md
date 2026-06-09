@@ -2,8 +2,8 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: planning
-stopped_at: Phase 5 verification complete — PASS-WITH-CARRYFORWARD; ready for Phase 6 planning or live UAT
+status: planning_complete
+stopped_at: Phase 6 planned (3 plans, plan-checker PASS-WITH-NITS) — awaiting execution approval (deploy is outward-facing)
 last_updated: "2026-06-09T08:58:10.809Z"
 last_activity: 2026-06-09
 progress:
