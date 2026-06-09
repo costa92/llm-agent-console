@@ -38,6 +38,7 @@ func New(cfg *config.Config) http.Handler {
 
 	// BFF-03 synthetic SSE proof + health check (no auth on healthz).
 	mux.HandleFunc("GET /api/stream/test", syntheticSSEHandler)
+	mux.HandleFunc("GET /api/replay/test", syntheticReplaySSEHandler)
 	mux.HandleFunc("GET /healthz", healthHandler)
 
 	// SHELL-04: active environment/endpoint indicator (read-only, no secrets).
@@ -83,6 +84,47 @@ func healthHandler(w http.ResponseWriter, _ *http.Request) {
 // is self-describing for any intermediate proxy (D-06). This endpoint requires
 // no operator auth — it is a BFF-03 transport proof only.
 func syntheticSSEHandler(w http.ResponseWriter, r *http.Request) {
+	flusher, ok := w.(http.Flusher)
+	if !ok {
+		http.Error(w, "streaming unsupported", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "text/event-stream")
+	w.Header().Set("Cache-Control", "no-cache, no-transform")
+	w.Header().Set("X-Accel-Buffering", "no")
+	w.Header().Set("Connection", "keep-alive")
+	w.WriteHeader(http.StatusOK)
+	flusher.Flush()
+
+	ticker := time.NewTicker(time.Second)
+	defer ticker.Stop()
+
+	n := 0
+	for {
+		select {
+		case t := <-ticker.C:
+			fmt.Fprintf(w, "event: tick\ndata: {\"t\":%d,\"ts\":\"%s\"}\n\n",
+				n, t.UTC().Format(time.RFC3339))
+			flusher.Flush()
+			n++
+			if n >= syntheticTicks {
+				fmt.Fprintf(w, "event: done\ndata: {\"ticks\":%d}\n\n", syntheticTicks)
+				flusher.Flush()
+				return
+			}
+		case <-r.Context().Done():
+			// Client disconnected — stop emitting.
+			return
+		}
+	}
+}
+
+// syntheticReplaySSEHandler is a structural mirror of syntheticSSEHandler for
+// the /api/replay/test path. It uses identical SSE transport headers and tick
+// emission logic so sse-proof.sh PART 3 (Plan 06-02) can exercise the
+// ^/api/.*(stream|replay) nginx regex without requiring a live flowd instance.
+func syntheticReplaySSEHandler(w http.ResponseWriter, r *http.Request) {
 	flusher, ok := w.(http.Flusher)
 	if !ok {
 		http.Error(w, "streaming unsupported", http.StatusInternalServerError)
