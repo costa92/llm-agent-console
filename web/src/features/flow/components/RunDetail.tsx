@@ -5,13 +5,25 @@ import { CopyableId } from '@/components/primitives/CopyableId'
 import { FiveStateWrapper } from '@/components/primitives/FiveStateWrapper'
 import { RawJsonViewer } from '@/components/primitives/RawJsonViewer'
 import { Button } from '@/components/ui/button'
-import { useRunQuery, useRunEventsQuery } from '@/features/flow/api/queries'
+import {
+  useRunQuery,
+  useRunEventsQuery,
+  useFlowQuery,
+} from '@/features/flow/api/queries'
 import { FlowdError } from '@/features/flow/api/client'
+import type { DecodedFlowRecord } from '@/features/flow/api/client'
 import { useRunStream } from '@/features/flow/timeline/useRunStream'
+import type { NodeStatus } from '@/features/flow/timeline/reducer'
+import type {
+  IrEdge,
+  IrNode,
+} from '@/features/flow/timeline/layoutGraph'
 import type { RunRecord } from '@/features/flow/api/schemas'
 import { RunStatusBadge } from './RunsHistory'
 import { TimelineView } from './TimelineView'
 import { RunResultPanel } from './RunResultPanel'
+import { FlowGraph } from './FlowGraph'
+import { NodeStatusList } from './NodeStatusList'
 
 /**
  * Run detail (S8 / FLOW-05/06 / D-07 / D-08 / IC-7) — the body of the run
@@ -53,7 +65,7 @@ export interface RunDetailProps {
   runId: string
 }
 
-export function RunDetail({ runId }: RunDetailProps) {
+export function RunDetail({ flowId, runId }: RunDetailProps) {
   const runQuery = useRunQuery(runId)
   const rec = runQuery.data
 
@@ -73,12 +85,22 @@ export function RunDetail({ runId }: RunDetailProps) {
       error={errorState}
       onRetry={() => void runQuery.refetch()}
     >
-      {rec != null && <RunDetailBody runId={runId} rec={rec} />}
+      {rec != null && (
+        <RunDetailBody flowId={flowId} runId={runId} rec={rec} />
+      )}
     </FiveStateWrapper>
   )
 }
 
-function RunDetailBody({ runId, rec }: { runId: string; rec: RunRecord }) {
+function RunDetailBody({
+  flowId,
+  runId,
+  rec,
+}: {
+  flowId: string
+  runId: string
+  rec: RunRecord
+}) {
   const stream = useRunStream()
   const isRunning = rec.status === 'running'
   // A terminal run instant-fills (no playback animation); a running run tails
@@ -109,6 +131,11 @@ function RunDetailBody({ runId, rec }: { runId: string; rec: RunRecord }) {
   }, [runId, hasEvents, stream])
 
   const { timeline, conn, attempt, cap } = stream
+
+  // Topology source (no backend change): the decoded flow IR `{ nodes, edges }`.
+  // On success the execution graph replaces the flat NodeStatusList; on error we
+  // fall back to NodeStatusList so the run view never regresses.
+  const flowQuery = useFlowQuery(flowId)
 
   return (
     <div className="flex flex-col gap-6">
@@ -191,6 +218,13 @@ function RunDetailBody({ runId, rec }: { runId: string; rec: RunRecord }) {
         )}
       </section>
 
+      {/* ── Execution graph (topology + live position) above the timeline ──
+          Replaces the flat NodeStatusList: react-flow renders the flow's
+          nodes/edges colored by the SAME reducer nodeStatus (live + replay),
+          with the running node highlighted. Pending → compact skeleton; error
+          → NodeStatusList fallback so the run view never regresses. */}
+      <FlowGraphSlot flowQuery={flowQuery} nodeStatus={timeline.nodeStatus} />
+
       {/* ── The SINGLE live+replay timeline renderer (S5 / S8 / D-08) ────── */}
       {noEvents ? (
         <NoEventsEmptyState />
@@ -221,6 +255,61 @@ function RunDetailBody({ runId, rec }: { runId: string; rec: RunRecord }) {
       )}
     </div>
   )
+}
+
+/** The flow IR topology shape the graph consumes. */
+type FlowIr = { nodes: IrNode[]; edges: IrEdge[] }
+
+/**
+ * Narrow the decoded flow record's `flow` (typed `unknown`) to `{ nodes, edges }`.
+ * Tolerant of a missing/empty `edges` (an editor skeleton or a node-only flow):
+ * defaults to `[]`. Returns null only when there is no usable node list, so the
+ * caller falls back to the strip rather than render an empty graph.
+ */
+function extractIr(rec: DecodedFlowRecord | undefined): FlowIr | null {
+  const flow = rec?.flow
+  if (flow == null || typeof flow !== 'object') return null
+  const obj = flow as { nodes?: unknown; edges?: unknown }
+  if (!Array.isArray(obj.nodes)) return null
+  const nodes = obj.nodes as IrNode[]
+  const edges = Array.isArray(obj.edges) ? (obj.edges as IrEdge[]) : []
+  return { nodes, edges }
+}
+
+/**
+ * The execution-graph slot above the timeline. Five-state-lite over the flow IR
+ * query: success+parseable → <FlowGraph>; pending → compact skeleton; error (or
+ * unparseable IR) → <NodeStatusList> fallback so the run view never regresses.
+ */
+function FlowGraphSlot({
+  flowQuery,
+  nodeStatus,
+}: {
+  flowQuery: ReturnType<typeof useFlowQuery>
+  nodeStatus: Record<string, NodeStatus>
+}) {
+  if (flowQuery.isPending) {
+    return (
+      <div
+        aria-label="Loading execution graph"
+        data-slot="flow-graph-skeleton"
+        className="animate-pulse rounded-md border"
+        style={{
+          borderColor: 'var(--border)',
+          background: 'var(--card)',
+          height: 320,
+        }}
+      />
+    )
+  }
+
+  const ir = extractIr(flowQuery.data)
+  if (flowQuery.isError || ir == null) {
+    // IR unavailable → keep the flat strip so the operator still sees status.
+    return <NodeStatusList nodeStatus={nodeStatus} />
+  }
+
+  return <FlowGraph ir={ir} nodeStatus={nodeStatus} />
 }
 
 /** No-events empty state (UI-SPEC copy): "No events recorded." (Pitfall 7). */

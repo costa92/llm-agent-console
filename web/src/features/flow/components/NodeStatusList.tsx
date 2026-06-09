@@ -1,7 +1,6 @@
-import { CheckCircle, CircleDashed, CircleSlash, Loader, XCircle } from 'lucide-react'
-
 import { Badge } from '@/components/ui/badge'
 import type { NodeStatus } from '@/features/flow/timeline/reducer'
+import { STATUS_META } from './flowGraphStatus'
 
 /**
  * Per-node status strip (S5 / D-01) — a compact strip listing each node ONCE,
@@ -17,18 +16,10 @@ import type { NodeStatus } from '@/features/flow/timeline/reducer'
  *
  * Node names are flowd payload identifiers → rendered as TEXT nodes, mono
  * (T-03-V5: no markup ever interpolated).
+ *
+ * The status→token/icon mapping (STATUS_META) is shared with the execution
+ * graph (`flowGraphStatus.ts`) so the strip and the graph node stay consistent.
  */
-
-const STATUS_META: Record<
-  NodeStatus,
-  { token: string; Icon: typeof Loader; spin?: boolean; dim?: boolean }
-> = {
-  pending: { token: 'var(--status-unknown)', Icon: CircleDashed },
-  running: { token: 'var(--status-unknown)', Icon: Loader, spin: true },
-  done: { token: 'var(--status-up)', Icon: CheckCircle },
-  skipped: { token: 'var(--status-unknown)', Icon: CircleSlash, dim: true },
-  errored: { token: 'var(--status-down)', Icon: XCircle },
-}
 
 export interface NodeStatusListProps {
   /** The reducer's per-node status map (node name → status). */
