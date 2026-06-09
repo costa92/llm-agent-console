@@ -1,11 +1,14 @@
 package router
 
 import (
+	"bufio"
+	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/costa92/llm-agent-console/internal/config"
 )
@@ -66,6 +69,55 @@ func TestAllowlist(t *testing.T) {
 			t.Errorf("/api/chat/sessions returned 404; route should be allowlisted")
 		}
 	})
+}
+
+// TestSyntheticReplaySSEHandler verifies GET /api/replay/test:
+//   - returns HTTP 200
+//   - sets Content-Type: text/event-stream
+//   - sets X-Accel-Buffering: no
+//   - emits at least one "event: tick" frame (proven via a real server + context cancel)
+//
+// Using httptest.NewServer (real socket) because httptest.NewRecorder does not flush
+// incrementally — the handler would block for all 30 ticks before the recorder saw
+// any body, mirroring the approach in sse_test.go TestSyntheticSSE.
+func TestSyntheticReplaySSEHandler(t *testing.T) {
+	srv := httptest.NewServer(New(&config.Config{}))
+	defer srv.Close()
+
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, srv.URL+"/api/replay/test", nil)
+	if err != nil {
+		t.Fatalf("build request: %v", err)
+	}
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		t.Fatalf("GET /api/replay/test: %v", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		t.Fatalf("status = %d, want 200", resp.StatusCode)
+	}
+	if got := resp.Header.Get("Content-Type"); !strings.Contains(got, "text/event-stream") {
+		t.Errorf("Content-Type = %q, want text/event-stream", got)
+	}
+	if got := resp.Header.Get("X-Accel-Buffering"); got != "no" {
+		t.Errorf("X-Accel-Buffering = %q, want no", got)
+	}
+
+	scanner := bufio.NewScanner(resp.Body)
+	sawTick := false
+	for scanner.Scan() {
+		if strings.HasPrefix(scanner.Text(), "event: tick") {
+			sawTick = true
+			break
+		}
+	}
+	if !sawTick {
+		t.Fatalf("did not observe `event: tick` frame before abort (scanner err: %v)", scanner.Err())
+	}
 }
 
 // TestConfigEnv verifies /api/config/env returns the active env + base URLs and

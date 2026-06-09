@@ -20,7 +20,7 @@ hypotheses until shipped and validated.
 ### SHELL — app frame + cross-cutting legibility
 
 - [x] **SHELL-01**: Operator navigates between the Memory, Flow, and Chat consoles from a persistent shell/nav.
-- [ ] **SHELL-02**: Operator sees **always-visible per-service health** (up / down / degraded) for memory-gateway, flowd, and chat, polled on an interval, with a last-checked timestamp.
+- [x] **SHELL-02**: Operator sees **always-visible per-service health** (up / down / degraded) for memory-gateway, flowd, and chat, polled on an interval, with a last-checked timestamp.
 - [x] **SHELL-03**: Operator sets and sees the **active operator context** (tenant id, user id, optional project/session id), persisted across reloads and displayed in the shell at all times.
 - [x] **SHELL-04**: The active **environment/endpoint** the BFF targets is displayed prominently in the shell.
 - [x] **SHELL-05**: Every list/detail/stream view renders explicit **loading, empty, and error states** (no ambiguous blank screens).

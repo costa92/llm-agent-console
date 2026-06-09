@@ -1,13 +1,14 @@
 import { useQuery } from '@tanstack/react-query'
 import { HealthDot } from '@/components/shell/HealthDot'
 import { OperatorContextBar } from '@/components/shell/OperatorContextBar'
+import { useServiceHealth } from '@/features/health/useServiceHealth'
 
 /**
  * Always-visible top bar. Left: app name. Center: the active environment /
  * endpoint indicator (read-only in v1, SHELL-04) read from /api/config/env and
  * rendered in monospace — an operator must never be unsure which environment
- * they act against. Right: per-service health dots (unknown in Phase 1) and the
- * operator-context bar.
+ * they act against. Right: per-service health dots (live via useServiceHealth,
+ * SHELL-02 / D-01 / D-02) and the operator-context bar.
  */
 type EnvConfig = {
   env: string
@@ -67,6 +68,55 @@ function EnvIndicator() {
   )
 }
 
+/**
+ * Formats a last-checked ISO timestamp into a relative string for the dot tooltip.
+ * Returns "Checking…" when no timestamp is available (pre-first-poll).
+ * Appends "— health check unavailable" when the poll itself failed (isError).
+ */
+function formatLastChecked(lastChecked?: string, isError?: boolean): string {
+  if (!lastChecked) return 'Checking…'
+  const diffMs = Date.now() - new Date(lastChecked).getTime()
+  const diffS = Math.round(diffMs / 1000)
+  const timeStr =
+    diffS < 60
+      ? `${diffS}s ago`
+      : diffS < 3600
+        ? `${Math.round(diffS / 60)}m ago`
+        : `${Math.round(diffS / 3600)}h ago`
+  const checked = `Checked ${timeStr}`
+  return isError ? `${checked} — health check unavailable` : checked
+}
+
+/**
+ * LiveHealthDots renders the three service health dots driven by the polling
+ * hook useServiceHealth (SHELL-02). Each dot title shows the last-checked
+ * timestamp; on stale/error it appends "— health check unavailable" so the
+ * operator can distinguish a stale dot from a blank one (D-02 requirement).
+ */
+function LiveHealthDots() {
+  const { getService, q } = useServiceHealth()
+
+  const memory = getService('memory')
+  const flow = getService('flow')
+  const chat = getService('chat')
+
+  const isStale = q.isError
+
+  return (
+    <>
+      <span title={formatLastChecked(memory.lastChecked, isStale)}>
+        <HealthDot service="memory" status={memory.status} />
+      </span>
+      <span title={formatLastChecked(flow.lastChecked, isStale)}>
+        <HealthDot service="flow" status={flow.status} />
+      </span>
+      <span title={formatLastChecked(chat.lastChecked, isStale)}>
+        <HealthDot service="chat" status={chat.status} />
+      </span>
+    </>
+  )
+}
+
 export function TopBar() {
   return (
     <header
@@ -76,9 +126,7 @@ export function TopBar() {
       <span className="text-[14px] font-semibold">llm-agent-console</span>
       <EnvIndicator />
       <div className="ml-auto flex items-center gap-3">
-        <HealthDot service="memory" status="unknown" />
-        <HealthDot service="flow" status="unknown" />
-        <HealthDot service="chat" status="unknown" />
+        <LiveHealthDots />
         <OperatorContextBar />
       </div>
     </header>

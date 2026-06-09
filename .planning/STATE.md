@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: verifying
-stopped_at: Completed 04-01-PLAN.md (Wave-0 chat foundation)
-last_updated: "2026-06-04T06:50:27.246Z"
-last_activity: 2026-06-04
+status: milestone_complete
+stopped_at: Phase 6 verified PASS (live deploy + make proof all 3 legs green; nginx IPv6 healthcheck bug found+fixed); milestone v1.0 complete (6/6 phases)
+last_updated: "2026-06-09T09:49:23.919Z"
+last_activity: 2026-06-09
 progress:
   total_phases: 6
-  completed_phases: 3
-  total_plans: 18
-  completed_plans: 16
-  percent: 50
+  completed_phases: 6
+  total_plans: 25
+  completed_plans: 25
+  percent: 100
 ---
 
 # Project State
@@ -21,16 +21,32 @@ progress:
 See: .planning/PROJECT.md (updated 2026-06-02)
 
 **Core value:** Turn the ecosystem's headless service APIs into one usable, observable operator surface — see and act on what the backends are doing from a single web UI.
-**Current focus:** Phase 4 — Chat Console (third SSE consumer)
+**Current focus:** Milestone v1.0 COMPLETE — all 6 phases shipped & verified
 
 ## Current Position
 
-Phase: 4 of 6 (Chat Console)
-Plan: 1 of 3 in current phase (04-01 Wave-0 foundation complete — typed /api/chat client + loose zod schemas + chat goldens + pure turnsReducer + imperative useChatStream; 19 chat tests green, 247 total)
-Status: Executing (04-02 / 04-03 wire the ChatPage/composer/transcript UI onto this keystone)
-Last activity: 2026-06-04
+Phase: 06 (deploy) — VERIFIED PASS (live)
+Plan: 3 of 3 complete; phase verified end-to-end on a running stack
+Status: milestone_complete (6/6 phases)
+Last activity: 2026-06-09
 
-Progress: [█████████░] 89%
+Progress: [██████████] 100%
+
+## Verification Status (Phase 5)
+
+**Automated gate results (2026-06-09):**
+
+- `GOWORK=off go test ./...` — PASS
+- `GOWORK=off go test ./internal/router/ -run Health -count=1` — PASS (3/3 subtests)
+- `cd web && npm run test` — PASS (308/308 tests, 38 files)
+- `cd web && npm run typecheck` — PASS (0 errors)
+- `cd web && npm run lint` — PASS (0 errors, 6 pre-existing warnings)
+- `cd web && npm run build` — PASS (726kB, 0 errors)
+
+**Carried forward to Phase 6 (live-service legs, per 05-VALIDATION.md Manual-Only):**
+
+1. Live health dots reflect real service state (requires compose stack up)
+2. Live stream transport drop → reconnect → resume with no duplicate events (requires live flowd + nginx drop)
 
 ## Performance Metrics
 
@@ -67,6 +83,10 @@ Progress: [█████████░] 89%
 | Phase 03 P04 | 7min | 2 tasks | 9 files |
 | Phase 03 P05 | 8min | 2 tasks | 9 files |
 | Phase 04 P01 | 6 | 3 tasks | 8 files |
+| Phase 04 P02 | 4min | 2 tasks | 6 files |
+| Phase 4 P3 | 6min | 2 tasks | 6 files |
+| Phase 05-health-hardening P05-01 | 9min | 2 tasks | 6 files |
+| Phase 06-deploy P06-01 | 3min | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -111,6 +131,16 @@ Recent decisions affecting current work:
 - [Phase 04]: 04-01: turnsReducer reads step text from data.answer (not content); done/error terminal, else step; no de-dup/ordinals (chat has no replay)
 - [Phase 04]: 04-01: useChatStream marks openedRef on X-Session-Id arrival to split a live drop (->errored) from a non-2xx open (->send-failure); Stop dispatches conn terminal before abort so Stop->closed never errored (D-05/Pitfall 4)
 - [Phase 04]: 04-01: session_id reused via request BODY only (never a header); chat client sends Content-Type only (auth-none); connReducer imported cross-feature from features/flow/timeline (not copied)
+- [Phase ?]: 04-02: ChatPage owns a page-local 'sending' flag (set on Send, cleared in sendSync().finally) for the sync in-flight composer-disable
+- [Phase ?]: 04-02: send-failure → toast.error('Send failed — {status}: {error}.') read off the thrown ChatError + composer re-enables (error-channel split); in-turn agent errors stay in-bubble (04-03)
+- [Phase ?]: StepTrace renders only intermediate step rows (all neutral slate); terminal done/error are page treatments (answer / red 'Failed —'), per UI-SPEC Color (a)
+- [Phase ?]: D-05 three signals render as three distinct markers keyed off (status, conn): muted Stopped / red Failed / amber Connection lost — the 04-01 machine guarantees Stop->closed
+- [Phase ?]: 05-01: /api/health BFF handler with parallel probes (goroutines+WaitGroup); DTO carries only status/lastChecked/latencyMs (T-05-leak)
+- [Phase ?]: 05-01: useServiceHealth TanStack Query refetchInterval 15s + stale-on-self-failure (q.isError → unknown + stale lastChecked from q.data)
+- [Phase 05]: 05-02: reconnecting state added additively to ConnState; transport-error → reconnecting; reconnect-give-up is the only path to errored; terminal always wins (no storms)
+- [Phase 05]: 05-03: chat is manual-retry-only on a drop (handleChatDrop dispatches transport-error+reconnect-give-up atomically from BOTH seams); flow auto-reconnects via capped backoff → retry()/listRunEvents de-dup
+- [Phase 05]: 05-04: five-state conformance confirmed (FlowsPage→FiveStateWrapper, RunDetail→FiveStateWrapper, ChatPage inline); reconnect overlay wired on flow timeline (attempt/cap threaded RunDetail→TimelineView→ConnectionBadge) and chat
+- [Phase 06]: 06-01: nginx SSE regex ^/api/.*(stream|replay) — structural copy handler pattern for syntheticReplaySSEHandler (not shared helper); TestSyntheticReplaySSEHandler uses httptest.NewServer not recorder for incremental flush proof
 
 ### Pending Todos
 
@@ -128,10 +158,11 @@ Items acknowledged and carried forward from previous milestone close:
 
 | Category | Item | Status | Deferred At |
 |----------|------|--------|-------------|
-| *(none)* | | | |
+| Live-service UAT | Health dots reflect real service state (flowd/chat/memory-gateway up/down/unknown) | Carried to Phase 6 | Phase 5 verification 2026-06-09 |
+| Live-service UAT | Flow stream transport drop → Reconnecting(n/N) → resume with de-dup (requires live flowd + nginx drop) | Carried to Phase 6 | Phase 5 verification 2026-06-09 |
 
 ## Session Continuity
 
-Last session: 2026-06-04T06:50:27.239Z
-Stopped at: Completed 04-01-PLAN.md (Wave-0 chat foundation)
-Resume file: None
+Last session: 2026-06-09T09:26:55.366Z
+Stopped at: Phase 06 Plan 03 complete (doc task) — human-confirm checkpoint PENDING-OPERATOR
+Resume file: .planning/phases/06-deploy/06-03-SUMMARY.md (contains verbatim operator steps)

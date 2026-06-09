@@ -16,9 +16,9 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 1: Foundation** - Single-origin BFF (auth boundary + verified SSE pass-through) + SPA shell + cross-cutting primitives (completed 2026-06-03)
 - [x] **Phase 2: Memory Console** - REST-only memory recall/detail/lifecycle, proving auth injection + query cache before any SSE (completed 2026-06-03)
 - [x] **Phase 3: Flow Console** - Flow CRUD + first SSE: live run timeline, run history, events/replay (keystone streaming phase) (completed 2026-06-04)
-- [ ] **Phase 4: Chat Console** - Streaming agent-step chat with session continuity, reusing the SSE infra
-- [ ] **Phase 5: Health & Hardening** - Always-visible per-service health + five-state/reconnect error hardening
-- [ ] **Phase 6: Deploy** - Compose service alongside the umbrella stack with streaming preserved end-to-end
+- [x] **Phase 4: Chat Console** - Streaming agent-step chat with session continuity, reusing the SSE infra (completed 2026-06-04)
+- [x] **Phase 5: Health & Hardening** - Always-visible per-service health + five-state/reconnect error hardening (completed 2026-06-09)
+- [x] **Phase 6: Deploy** - Compose service alongside the umbrella stack with streaming preserved end-to-end (completed 2026-06-09)
 
 ## Phase Details
 
@@ -155,11 +155,11 @@ Plans:
 
 **Wave 2** *(Slice A — sync chat + session; blocked on 04-01)*
 
-- [ ] 04-02-PLAN.md — ChatPage + SessionHeader (CopyableId + New session) + MessageBubble + Composer (sync Send) + real /chat route; sync reply into one bubble, session display/reuse, D-06 reset, 429 send-failure toast (CHAT-02, CHAT-03)
+- [x] 04-02-PLAN.md — ChatPage + SessionHeader (CopyableId + New session) + MessageBubble + Composer (sync Send) + real /chat route; sync reply into one bubble, session display/reuse, D-06 reset, 429 send-failure toast (CHAT-02, CHAT-03)
 
 **Wave 3** *(Slice B — streamed chat + step trace + Stop; blocked on 04-02)*
 
-- [ ] 04-03-PLAN.md — Streamed default Send + StepTrace (collapsible live trace) + streaming indicator + Stream|Sync toggle + Stop (keeps partial, closed-not-errored) + in-bubble error + ConnectionBadge reuse + the D-05 three-signal distinction (CHAT-01, CHAT-03)
+- [x] 04-03-PLAN.md — Streamed default Send + StepTrace (collapsible live trace) + streaming indicator + Stream|Sync toggle + Stop (keeps partial, closed-not-errored) + in-bubble error + ConnectionBadge reuse + the D-05 three-signal distinction (CHAT-01, CHAT-03)
 **UI hint**: yes
 
 ### Phase 5: Health & Hardening
@@ -174,7 +174,21 @@ Plans:
   2. Each area enforces the UI-SPEC five-state contract (loading/empty/error/partial/ready), with stream views adding the SSE-specific disconnected/reconnecting state on top — no ambiguous blank screens.
   3. Stream views show connection status with manual retry, and the client applies reconnect backoff with a cap and closes on the terminal `done` event (no reconnect storms).
 
-**Plans**: TBD
+**Plans**: 4 plans (vertical slices: Slice A health [W1] + reconnect primitives [W1] → reconnect wiring [W2] → five-state audit + overlay [W3])
+
+Plans:
+**Wave 1** *(Slice A health + reconnect primitives — parallel, no file overlap; blocked on Phase 4)*
+
+- [x] 05-01-PLAN.md — Slice A: BFF /api/health parallel-probe Go handler (leak-free DTO) + useServiceHealth poll lighting the live HealthDots (SHELL-02, D-01, D-02)
+- [x] 05-02-PLAN.md — Reconnect primitives (TDD): additive `reconnecting` state on connection.ts + pure backoff.ts nextDelay scheduler (D-03)
+
+**Wave 2** *(Slice B reconnect wiring — blocked on 05-02)*
+
+- [x] 05-03-PLAN.md — Auto-reconnect loop into useRunStream (flow hydrate+de-dup) + chat manual-retry-only refinement of D-03 + ConnectionBadge reconnecting arm (D-03)
+
+**Wave 3** *(Slice B finish — blocked on 05-03)*
+
+- [x] 05-04-PLAN.md — Five-state audit (FlowsPage/RunDetailPage/ChatPage) + transient reconnecting overlay on the stream views (D-04)
 **UI hint**: yes
 
 ### Phase 6: Deploy
@@ -188,8 +202,20 @@ Plans:
   2. Streamed flow runs and chat render incrementally through the deployed stack, with the fronting nginx verified not to buffer, gzip, or idle-timeout the stream routes (`proxy_buffering off`, no gzip on `text/event-stream`, `X-Accel-Buffering: no` passthrough).
   3. Required LB/proxy idle-timeout and buffering settings are documented for the deploy environment.
 
-**Plans**: TBD
-**Research**: Flag for phase-specific research — verify the umbrella's fronting proxy/LB config (buffering, gzip, idle timeout) against SSE routes; environment-specific, not in current research.
+**Plans**: 3 plans
+
+Plans:
+**Wave 1** *(GAP-1 nginx fix + GAP-2 restart policy + synthetic replay endpoint; no prior deps)*
+
+- [x] 06-01-PLAN.md — nginx SSE regex fix (stream|replay) + compose restart policy + synthetic /api/replay/test BFF endpoint
+
+**Wave 2** *(blocked on 06-01)*
+
+- [x] 06-02-PLAN.md — Makefile spa-build/up targets + sse-proof.sh PART 3 (replay-path SC-2 verification) + config injection checkpoint
+
+**Wave 3** *(blocked on 06-02)*
+
+- [x] 06-03-PLAN.md — deploy/DEPLOY.md (SC-3 nginx settings documentation) + end-to-end human-verify checkpoint [DOC COMPLETE; human-confirm PENDING-OPERATOR]
 
 ## Progress
 
@@ -201,6 +227,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | 1. Foundation | 5/5 | Complete   | 2026-06-03 |
 | 2. Memory Console | 5/5 | Complete   | 2026-06-03 |
 | 3. Flow Console | 5/5 | Complete   | 2026-06-04 |
-| 4. Chat Console | 1/3 | In Progress|  |
-| 5. Health & Hardening | 0/TBD | Not started | - |
-| 6. Deploy | 0/TBD | Not started | - |
+| 4. Chat Console | 3/3 | Complete   | 2026-06-04 |
+| 5. Health & Hardening | 4/4 | Complete   | 2026-06-09 |
+| 6. Deploy | 3/3 | Complete   | 2026-06-09 |

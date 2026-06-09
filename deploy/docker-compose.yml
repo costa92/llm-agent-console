@@ -17,6 +17,16 @@ services:
     hostname: bff
     expose:
       - "8090"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8090/healthz"]
+      interval: 5s
+      retries: 6
+    # Production: uncomment the lines below and create config/config.prod.yaml
+    # (the file is gitignored and must be created on each deploy host with real tokens).
+    # volumes:
+    #   - ../config/config.prod.yaml:/app/config/config.prod.yaml:ro
+    # command: ["/app/console", "--config", "/app/config/config.prod.yaml"]
 
   nginx:
     image: nginx:alpine
@@ -24,6 +34,7 @@ services:
       - bff
     ports:
       - "80:80"
+    restart: unless-stopped
     volumes:
       # nginx config (the SSE hardening lives here).
       - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
@@ -33,6 +44,9 @@ services:
     healthcheck:
       # nginx is ready once it can proxy /healthz through to the BFF. nginx:alpine
       # ships wget (not curl), so the check uses wget for portability.
-      test: ["CMD", "wget", "-qO-", "http://localhost/healthz"]
+      # Use 127.0.0.1 (not localhost): /etc/hosts maps localhost to ::1 too, and
+      # BusyBox wget tries IPv6 first, but nginx `listen 80;` is IPv4-only → the
+      # healthcheck would get "connection refused" while the proxy works fine.
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1/healthz"]
       interval: 2s
       retries: 10

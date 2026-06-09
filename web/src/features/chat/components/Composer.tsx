@@ -4,34 +4,53 @@ import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 
 /**
- * The chat composer (S4 / IC-4 / D-04, sync slice).
+ * The chat composer (S4 / IC-4 / D-04 — stream + sync).
  *
  * A multi-line `textarea` (placeholder "Message the agent…") + a primary "Send"
  * button. Enter sends (preventDefault + onSend when the value is non-empty),
  * Shift+Enter inserts a newline. Send is disabled when the value is
- * empty/whitespace-only OR the `disabled` prop is true (in-flight).
+ * empty/whitespace-only OR `disabled` (in-flight).
+ *
+ * 04-03 fills the toolbar seam (D-03/D-04):
+ * - A `Stream | Sync` 2-segment toggle (a `button` group — NO new shadcn
+ *   `switch` block, per RESEARCH Rec 3). Default "Stream" (the streamed Send
+ *   path). The page owns `mode` state; this fires `onModeChange`. The Sync
+ *   segment carries the tooltip "One-shot reply, no live steps." (native title).
+ * - A neutral `Stop` button shown IN PLACE OF Send while `streaming`, wired to
+ *   `onStop` (the D-04 abort). Stop is NOT destructive-red, NOT accent.
+ *
+ * While `streaming`, the textarea, Send, and the mode toggle are disabled (no
+ * concurrent turns / no mid-stream mode switch); only Stop is active.
  *
  * The page owns the input `value` (controlled); this component is otherwise
- * stateless. The sync/stream toggle + the Stop button arrive in 04-03 — a
- * clearly-marked toolbar SEAM is left below the textarea for them; do NOT build
- * them here.
+ * stateless.
  */
+export type SendMode = 'stream' | 'sync'
+
 export interface ComposerProps {
   value: string
   onChange: (value: string) => void
   onSend: () => void
-  /** In-flight: disable the textarea + Send (no concurrent turns). */
+  /** The send mode (D-03); the page owns the state. */
+  mode: SendMode
+  onModeChange: (mode: SendMode) => void
+  /** A stream is in flight: disable the textarea/Send/toggle, show Stop. */
+  streaming?: boolean
+  /** In-flight (stream OR sync): disable the textarea + Send. */
   disabled?: boolean
-  /** Request in flight (currently mirrors `disabled`; 04-03 swaps Send↔Stop). */
-  sending?: boolean
+  /** Operator Stop (D-04) — aborts the in-flight stream. */
+  onStop?: () => void
 }
 
 export function Composer({
   value,
   onChange,
   onSend,
+  mode,
+  onModeChange,
+  streaming = false,
   disabled = false,
-  sending = false,
+  onStop,
 }: ComposerProps) {
   const canSend = value.trim().length > 0 && !disabled
 
@@ -56,12 +75,71 @@ export function Composer({
         onChange={(e) => onChange(e.target.value)}
         onKeyDown={handleKeyDown}
       />
-      <div className="flex items-center justify-end gap-2">
-        {/* SEAM (04-03): the Stream|Sync toggle + Stop button mount here. */}
-        <Button type="button" onClick={onSend} disabled={!canSend || sending}>
-          Send
-        </Button>
+      <div className="flex items-center justify-between gap-2">
+        {/* Stream | Sync segmented toggle (D-03) — no new shadcn block. */}
+        <div
+          role="group"
+          aria-label="Send mode"
+          className="flex overflow-hidden rounded-md border"
+          style={{ borderColor: 'var(--border)' }}
+        >
+          <ModeSegment
+            label="Stream"
+            active={mode === 'stream'}
+            disabled={streaming}
+            onClick={() => onModeChange('stream')}
+          />
+          <ModeSegment
+            label="Sync"
+            active={mode === 'sync'}
+            disabled={streaming}
+            title="One-shot reply, no live steps."
+            onClick={() => onModeChange('sync')}
+          />
+        </div>
+
+        {streaming ? (
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onStop}
+            // Neutral — NOT destructive-red, NOT accent (D-05: Stop is benign).
+          >
+            Stop
+          </Button>
+        ) : (
+          <Button type="button" onClick={onSend} disabled={!canSend}>
+            Send
+          </Button>
+        )}
       </div>
     </div>
+  )
+}
+
+interface ModeSegmentProps {
+  label: string
+  active: boolean
+  disabled?: boolean
+  title?: string
+  onClick: () => void
+}
+
+function ModeSegment({ label, active, disabled, title, onClick }: ModeSegmentProps) {
+  return (
+    <button
+      type="button"
+      title={title}
+      disabled={disabled}
+      aria-pressed={active}
+      onClick={onClick}
+      className="px-3 py-1 text-xs disabled:opacity-50"
+      style={{
+        background: active ? 'var(--primary)' : 'transparent',
+        color: active ? 'var(--primary-foreground)' : 'var(--muted-foreground)',
+      }}
+    >
+      {label}
+    </button>
   )
 }

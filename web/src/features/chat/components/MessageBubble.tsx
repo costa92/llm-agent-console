@@ -19,9 +19,15 @@ import { Label } from '@/components/ui/label'
 export interface MessageBubbleProps {
   role: 'user' | 'assistant'
   children: ReactNode
+  /**
+   * Optional caption-row aside (04-03): the ConnectionBadge sits here, in the
+   * assistant bubble's header next to the ASSISTANT caption — the per-turn
+   * transport signal (D-05). Rendered as-is (already a TEXT-safe element).
+   */
+  aside?: ReactNode
 }
 
-export function MessageBubble({ role, children }: MessageBubbleProps) {
+export function MessageBubble({ role, children, aside }: MessageBubbleProps) {
   const railColor = role === 'assistant' ? 'var(--primary)' : 'var(--border)'
   const caption = role === 'assistant' ? 'ASSISTANT' : 'USER'
 
@@ -34,12 +40,15 @@ export function MessageBubble({ role, children }: MessageBubbleProps) {
         borderLeft: `2px solid ${railColor}`,
       }}
     >
-      <Label
-        className="mono text-xs uppercase tracking-wide"
-        style={{ color: 'var(--muted-foreground)' }}
-      >
-        {caption}
-      </Label>
+      <div className="flex items-center justify-between gap-2">
+        <Label
+          className="mono text-xs uppercase tracking-wide"
+          style={{ color: 'var(--muted-foreground)' }}
+        >
+          {caption}
+        </Label>
+        {aside}
+      </div>
       <div className="text-sm" style={{ color: 'var(--foreground)' }}>
         {children}
       </div>

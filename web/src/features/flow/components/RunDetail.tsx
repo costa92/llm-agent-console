@@ -108,7 +108,7 @@ function RunDetailBody({ runId, rec }: { runId: string; rec: RunRecord }) {
     stream.replay(runId)
   }, [runId, hasEvents, stream])
 
-  const { timeline, conn } = stream
+  const { timeline, conn, attempt, cap } = stream
 
   return (
     <div className="flex flex-col gap-6">
@@ -200,6 +200,11 @@ function RunDetailBody({ runId, rec }: { runId: string; rec: RunRecord }) {
             timeline={timeline}
             conn={conn}
             mode={mode}
+            // 05-04 D-04: thread attempt/cap from useRunStream so ConnectionBadge
+            // renders "Reconnecting (n/N)…" and the reconnecting subline shows
+            // the counter. Zero when not reconnecting (idle value from useRunStream).
+            attempt={attempt}
+            cap={cap}
             // D-09: the AMBER "Connection lost" Retry wires to the hook's retry()
             // — the /events-hydrate recovery for the KNOWN runId, de-duped, NOT a
             // fresh /run/stream POST.

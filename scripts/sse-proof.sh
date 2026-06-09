@@ -116,5 +116,52 @@ if [ "$NGINX_TICKS" -lt "$MIN_TICKS" ]; then
 fi
 echo "PART 2 SUCCESS: nginx delivered $NGINX_TICKS incremental ticks within 5s (BFF-03 gate passed)."
 
-banner "BFF-03 PROOF COMPLETE — both legs incremental"
+# ---------------------------------------------------------------------------
+# PART 3 — Through-nginx replay-path proof (:80/api/replay/test)
+# ---------------------------------------------------------------------------
+banner "PART 3: through-nginx replay-path SSE proof (:80/api/replay/test)"
+
+if ! command -v docker >/dev/null 2>&1; then
+    echo "SKIP: docker not available — run 'docker compose -f deploy/docker-compose.yml up'"
+    echo "      manually and verify 'curl -N http://localhost/api/replay/test' emits incremental ticks."
+    echo "PART 1 (direct-BFF) already passed; the nginx replay path is a manual step when Docker is unavailable."
+    exit 0
+fi
+
+REPLAY_OUT=/tmp/sse-replay.txt
+PART3_STARTED=""
+
+# Reuse the compose stack if it is still up (PART 2 tore it down above, so bring it up again).
+if [ -z "$($COMPOSE ps --quiet bff 2>/dev/null)" ]; then
+    echo "[10] bringing up bff + nginx via docker compose (--wait) for replay-path proof..."
+    if ! $COMPOSE up -d --build --wait; then
+        echo "PART 3 FAILURE: docker compose up did not become healthy (replay pre-step)"
+        $COMPOSE logs --no-color 2>&1 | tail -40
+        $COMPOSE down -v >/dev/null 2>&1
+        exit 1
+    fi
+    PART3_STARTED=1
+fi
+
+echo "[11] streaming GET :80/api/replay/test through nginx (max 5s)..."
+curl -N http://localhost/api/replay/test --max-time 5 2>/dev/null > "$REPLAY_OUT" &
+RCURLPID=$!
+wait "$RCURLPID"
+
+REPLAY_TICKS=$(grep -c 'event: tick' "$REPLAY_OUT" 2>/dev/null || echo 0)
+echo "[12] through-nginx replay-path tick frames observed: $REPLAY_TICKS (need >= $MIN_TICKS)"
+
+if [ -n "$PART3_STARTED" ]; then
+    echo "[13] tearing down compose stack (started by PART 3)..."
+    $COMPOSE down -v >/dev/null 2>&1
+fi
+
+if [ "$REPLAY_TICKS" -lt "$MIN_TICKS" ]; then
+    echo "PART 3 FAILURE: nginx did not deliver incremental replay ticks ($REPLAY_TICKS < $MIN_TICKS)."
+    echo "Check: location ~* ^/api/.*(stream|replay) in deploy/nginx.conf."
+    exit 1
+fi
+echo "PART 3 SUCCESS: nginx delivered $REPLAY_TICKS incremental replay ticks (GAP-1 fix confirmed: (stream|replay) regex active)."
+
+banner "BFF-03 + REPLAY PROOF COMPLETE — all three legs incremental"
 exit 0
