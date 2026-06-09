@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: executing
-stopped_at: Phase 6 Plan 1 complete — GAP-1/GAP-2 closed; /api/replay/test added; 06-02 next
-last_updated: "2026-06-09T09:26:55.373Z"
+status: human_needed
+stopped_at: Phase 06 Plan 03 doc task complete — deploy/DEPLOY.md written (SC-3); human-confirm checkpoint PENDING-OPERATOR (make proof + browser smoke test)
+last_updated: "2026-06-09T10:00:00.000Z"
 last_activity: 2026-06-09
 progress:
   total_phases: 6
   completed_phases: 5
   total_plans: 25
   completed_plans: 24
-  percent: 83
+  percent: 96
 ---
 
 # Project State
@@ -25,9 +25,9 @@ See: .planning/PROJECT.md (updated 2026-06-02)
 
 ## Current Position
 
-Phase: 06 (deploy) — EXECUTING
-Plan: 3 of 3 (Plan 01 complete)
-Status: Ready to execute
+Phase: 06 (deploy) — AWAITING OPERATOR VERIFICATION
+Plan: 3 of 3 (all doc tasks complete)
+Status: human_needed — deploy/DEPLOY.md written; operator must run make proof + browser smoke test
 Last activity: 2026-06-09
 
 Progress: [██████████] 96%
@@ -164,5 +164,5 @@ Items acknowledged and carried forward from previous milestone close:
 ## Session Continuity
 
 Last session: 2026-06-09T09:26:55.366Z
-Stopped at: Phase 6 Plan 1 complete — GAP-1/GAP-2 closed; /api/replay/test added; 06-02 next
-Resume file: None
+Stopped at: Phase 06 Plan 03 complete (doc task) — human-confirm checkpoint PENDING-OPERATOR
+Resume file: .planning/phases/06-deploy/06-03-SUMMARY.md (contains verbatim operator steps)

@@ -215,7 +215,7 @@ Plans:
 
 **Wave 3** *(blocked on 06-02)*
 
-- [ ] 06-03-PLAN.md — deploy/DEPLOY.md (SC-3 nginx settings documentation) + end-to-end human-verify checkpoint
+- [x] 06-03-PLAN.md — deploy/DEPLOY.md (SC-3 nginx settings documentation) + end-to-end human-verify checkpoint [DOC COMPLETE; human-confirm PENDING-OPERATOR]
 
 ## Progress
 
@@ -229,4 +229,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | 3. Flow Console | 5/5 | Complete   | 2026-06-04 |
 | 4. Chat Console | 3/3 | Complete   | 2026-06-04 |
 | 5. Health & Hardening | 4/4 | Complete   | 2026-06-09 |
-| 6. Deploy | 2/3 | In Progress|  |
+| 6. Deploy | 3/3 | PENDING-OPERATOR (human-confirm: make proof + browser smoke test) | 2026-06-09 (doc) |
