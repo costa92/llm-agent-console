@@ -17,7 +17,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 2: Memory Console** - REST-only memory recall/detail/lifecycle, proving auth injection + query cache before any SSE (completed 2026-06-03)
 - [x] **Phase 3: Flow Console** - Flow CRUD + first SSE: live run timeline, run history, events/replay (keystone streaming phase) (completed 2026-06-04)
 - [x] **Phase 4: Chat Console** - Streaming agent-step chat with session continuity, reusing the SSE infra (completed 2026-06-04)
-- [ ] **Phase 5: Health & Hardening** - Always-visible per-service health + five-state/reconnect error hardening
+- [x] **Phase 5: Health & Hardening** - Always-visible per-service health + five-state/reconnect error hardening (completed 2026-06-09)
 - [ ] **Phase 6: Deploy** - Compose service alongside the umbrella stack with streaming preserved end-to-end
 
 ## Phase Details
@@ -188,7 +188,7 @@ Plans:
 
 **Wave 3** *(Slice B finish — blocked on 05-03)*
 
-- [ ] 05-04-PLAN.md — Five-state audit (FlowsPage/RunDetailPage/ChatPage) + transient reconnecting overlay on the stream views (D-04)
+- [x] 05-04-PLAN.md — Five-state audit (FlowsPage/RunDetailPage/ChatPage) + transient reconnecting overlay on the stream views (D-04)
 **UI hint**: yes
 
 ### Phase 6: Deploy
@@ -216,5 +216,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | 2. Memory Console | 5/5 | Complete   | 2026-06-03 |
 | 3. Flow Console | 5/5 | Complete   | 2026-06-04 |
 | 4. Chat Console | 3/3 | Complete   | 2026-06-04 |
-| 5. Health & Hardening | 3/4 | In Progress|  |
+| 5. Health & Hardening | 4/4 | Complete   | 2026-06-09 |
 | 6. Deploy | 0/TBD | Not started | - |
