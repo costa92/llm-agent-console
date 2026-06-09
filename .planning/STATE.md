@@ -4,13 +4,13 @@ milestone: v1.0
 milestone_name: milestone
 status: executing
 stopped_at: Phase 5 UI-SPEC approved
-last_updated: "2026-06-04T08:24:58.499Z"
-last_activity: 2026-06-04 -- Phase 5 planning complete
+last_updated: "2026-06-09T07:38:51.623Z"
+last_activity: 2026-06-09
 progress:
   total_phases: 6
   completed_phases: 4
   total_plans: 22
-  completed_plans: 18
+  completed_plans: 19
   percent: 67
 ---
 
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-06-02)
 
 **Core value:** Turn the ecosystem's headless service APIs into one usable, observable operator surface — see and act on what the backends are doing from a single web UI.
-**Current focus:** Phase 4 — Chat Console (third SSE consumer)
+**Current focus:** Phase 05 — health-hardening
 
 ## Current Position
 
-Phase: 4 of 6 (Chat Console)
-Plan: 3 of 3 complete — Phase 4 (Chat Console) DONE. 04-03 Slice B landed: streamed Send is the default (live StepTrace + Streaming badge + collapse-on-done), the Stream|Sync toggle folds the sync one-shot into the same bubble, Stop keeps the partial + a muted "Stopped." chip with the connection Closed (never errored), an in-stream error renders in-bubble red "Failed —", and a transport drop shows the amber "Connection lost" badge — the D-05 three-signal distinction proven by tests. 264 tests green; build + tsc + lint pass.
+Phase: 05 (health-hardening) — EXECUTING
+Plan: 2 of 4
 Status: Ready to execute
-Last activity: 2026-06-04 -- Phase 5 planning complete
+Last activity: 2026-06-09
 
-Progress: [██████████] 100%
+Progress: [█████████░] 86%
 
 ## Performance Metrics
 
@@ -69,6 +69,7 @@ Progress: [██████████] 100%
 | Phase 04 P01 | 6 | 3 tasks | 8 files |
 | Phase 04 P02 | 4min | 2 tasks | 6 files |
 | Phase 4 P3 | 6min | 2 tasks | 6 files |
+| Phase 05-health-hardening P05-01 | 9min | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -117,6 +118,8 @@ Recent decisions affecting current work:
 - [Phase ?]: 04-02: send-failure → toast.error('Send failed — {status}: {error}.') read off the thrown ChatError + composer re-enables (error-channel split); in-turn agent errors stay in-bubble (04-03)
 - [Phase ?]: StepTrace renders only intermediate step rows (all neutral slate); terminal done/error are page treatments (answer / red 'Failed —'), per UI-SPEC Color (a)
 - [Phase ?]: D-05 three signals render as three distinct markers keyed off (status, conn): muted Stopped / red Failed / amber Connection lost — the 04-01 machine guarantees Stop->closed
+- [Phase ?]: 05-01: /api/health BFF handler with parallel probes (goroutines+WaitGroup); DTO carries only status/lastChecked/latencyMs (T-05-leak)
+- [Phase ?]: 05-01: useServiceHealth TanStack Query refetchInterval 15s + stale-on-self-failure (q.isError → unknown + stale lastChecked from q.data)
 
 ### Pending Todos
 
@@ -138,6 +141,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-06-04T07:59:29.322Z
+Last session: 2026-06-09T07:38:51.616Z
 Stopped at: Phase 5 UI-SPEC approved
-Resume file: .planning/phases/05-health-hardening/05-UI-SPEC.md
+Resume file: None
