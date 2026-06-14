@@ -9,6 +9,7 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "vitest run",
+    "test:e2e-toggle": "node run_e2e_toggle.cjs",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
